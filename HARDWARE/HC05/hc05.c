@@ -30,11 +30,11 @@ u8 HC05_Init(void)
 	RCC->APB2ENR|=1<<2;    	//使能PORTA时钟	 	
 	RCC->APB2ENR|=1<<4;    	//使能PORTC时钟	 	
  	GPIOA->CRL&=0XFFF0FFFF;	//PA4,输入
- 	GPIOA->CRL|=0X00080000; 
-	GPIOA->ODR|=1<<4; 		//PA4上拉 
-	GPIOC->CRL&=0XFFF0FFFF;	//PC4,推挽输出
-	GPIOC->CRL|=0X00030000; 
-	GPIOC->ODR|=1<<4; 		//PC4输出1	
+	GPIOA->CRL|=0X00080000;
+	GPIOA->ODR|=1<<4; 		//PA4上拉
+	GPIOA->CRL&=0XFF0FFFFF;	//PA5,推挽输出
+	GPIOA->CRL|=0X00300000;
+	GPIOA->ODR|=1<<5; 		//PA5输出1
 	USART2_Init(36,9600);	//初始化串口2为:9600,波特率.
 	while(retry--)
 	{
