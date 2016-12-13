@@ -29,12 +29,12 @@ u8 HC05_Init(void)
 	u8 temp=1;
 	RCC->APB2ENR|=1<<2;    	//使能PORTA时钟	 	
 	RCC->APB2ENR|=1<<4;    	//使能PORTC时钟	 	
- 	GPIOA->CRL&=0XFFF0FFFF;	//PA4,输入
-	GPIOA->CRL|=0X00080000;
-	GPIOA->ODR|=1<<4; 		//PA4上拉
-	GPIOA->CRL&=0XFF0FFFFF;	//PA5,推挽输出
-	GPIOA->CRL|=0X00300000;
-	GPIOA->ODR|=1<<5; 		//PA5输出1
+	GPIOB->CRH&=0XFFFF0FFF;	//PB11,输入
+	GPIOB->CRH|=0X00008000;
+	GPIOB->ODR|=1<<11; 		//PB11上拉
+	GPIOB->CRH&=0XFFFFF0FF;	//PB10,推挽输出
+	GPIOB->CRH|=0X00000300;
+	GPIOB->ODR|=1<<10; 		//PB10输出1
 	USART2_Init(36,9600);	//初始化串口2为:9600,波特率.
 	while(retry--)
 	{
@@ -56,9 +56,11 @@ u8 HC05_Init(void)
 				temp=0;//接收到OK响应
 				break;
 			}
-		}			    		
+		}
 	}		    
-	if(retry==0)temp=1;	//检测失败
+	temp += HC05_Set_Cmd("AT+NAME=MTMT");
+	temp += HC05_Set_Cmd("AT+PSWD=meituan");
+	if(retry==0 || temp != 0)temp=1;	//检测失败
 	return temp;	 
 }	 
 //获取ATK-HC05模块的角色
@@ -150,16 +152,32 @@ void HC05_CFG_CMD(u8 *str)
 	} 				 
 }
 
+//显示ATK-HC05模块的连接状态
+void HC05_connect_check(void)
+{
+	static unsigned char flag = 0;
+	if(HC05_LED)
+	{
+		if(0 == flag)
+		{
+			OLED_print_success("BT connect!");
+			flag = 1;
+			printf("STA:Connected\r\n");
+		}
+	}
+	else
+	{
+		printf("STA:Disconnected\r\n");
+		flag = 0;
+		OLED_print_error("BT disconnect!");
+		while(!HC05_LED)
+			delay_ms(1000);
+	}
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+//显示ATK-HC05模块的主从状态
+void HC05_Role_Show(void)
+{
+	if(HC05_Get_Role()==1)printf("ROLE:Master");	//主机
+	else printf("ROLE:Slave ");			 		//从机
+}

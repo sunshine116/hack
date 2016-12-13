@@ -17,13 +17,15 @@
 //修改LED的连接，原来接PC5，改为PA4，以兼容MiniSTM32开发板V3.0									  
 //////////////////////////////////////////////////////////////////////////////////   
 
-#define HC05_KEY  	PAout(5) 	//蓝牙控制KEY信号
-#define HC05_LED  	PAin(4)		//蓝牙连接状态信号
+#define HC05_KEY  	PBout(10) 		//蓝牙控制KEY信号
+#define HC05_LED  	PBin(11)		//蓝牙连接状态信号
   
 u8 HC05_Init(void);
 void HC05_CFG_CMD(u8 *str);
 u8 HC05_Get_Role(void);
-u8 HC05_Set_Cmd(u8* atstr);	   
+u8 HC05_Set_Cmd(u8* atstr);
+void HC05_connect_check(void);
+void HC05_Role_Show(void);
 #endif  
 
 

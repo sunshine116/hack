@@ -259,31 +259,16 @@ void OLED_Init(void)
 	OLED_Set_Pos(0,0); 	
 }  
 
+void OLED_print_error(char *string)
+{
+	OLED_Clear();
+	OLED_ShowString(30,2,"Error!");
+	OLED_ShowString(0,6,string);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void OLED_print_success(char *string)
+{
+	OLED_Clear();
+	OLED_ShowString(0,2,"Congratulations");
+	OLED_ShowString(0,6,string);
+}
