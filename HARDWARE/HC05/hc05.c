@@ -5,6 +5,7 @@
 #include "led.h" 
 #include "string.h"	 
 #include "math.h"
+#include "oled.h"
 //////////////////////////////////////////////////////////////////////////////////	 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK STM32开发板
@@ -160,16 +161,16 @@ void HC05_connect_check(void)
 	{
 		if(0 == flag)
 		{
-			OLED_print_success("BT connect!");
+			OLED_display(2, 5);
 			flag = 1;
+			delay_ms(3000);
 			printf("STA:Connected\r\n");
 		}
 	}
 	else
 	{
-		printf("STA:Disconnected\r\n");
 		flag = 0;
-		OLED_print_error("BT disconnect!");
+		OLED_display(0, 4);
 		while(!HC05_LED)
 			delay_ms(1000);
 	}

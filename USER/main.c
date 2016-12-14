@@ -1,7 +1,6 @@
 #include "delay.h"
 #include "sys.h"
 #include "oled.h"
-#include "bmp.h"
 #include "usart.h"
 #include "usart2.h"
 #include "hc05.h"
@@ -18,17 +17,16 @@ int main(void)
 	LED_Init();
 	KEY_Init();
 	OLED_Init();
-	OLED_Clear();
 	while(HC05_Init())
 	{
-		OLED_print_error("Bluetooth init eror!");
+		OLED_print_error("BT init error!");
 		delay_ms(1000);
 	}
 	OLED_Clear();
 
 	while(HC05_Get_Role() != 0)
 	{
-		OLED_print_error("Bluetooth role set error!");
+		OLED_print_error("BT role set error!");
 		HC05_Set_Cmd("AT+ROLE=0");
 		HC05_Set_Cmd("AT+RESET");
 		delay_ms(1000);

@@ -160,40 +160,116 @@ void OLED_ShowString(u8 x,u8 y,u8 *chr)
 	}
 }
 //显示汉字
-void OLED_ShowCHinese(u8 x,u8 y,u8 no)
-{      			    
-	u8 t,adder=0;
-	OLED_Set_Pos(x,y);	
+static void OLED_ShowCHinese_16(u8 x,u8 y,u8 no)
+{
+	u8 t;
+	OLED_Set_Pos(x,y);
     for(t=0;t<16;t++)
-		{
-				OLED_WR_Byte(Hzk[2*no][t],OLED_DATA);
-				adder+=1;
-     }	
-		OLED_Set_Pos(x,y+1);	
-    for(t=0;t<16;t++)
-			{	
-				OLED_WR_Byte(Hzk[2*no+1][t],OLED_DATA);
-				adder+=1;
-      }					
-}
-/***********功能描述：显示显示BMP图片128×64起始点坐标(x,y),x的范围0～127，y为页的范围0～7*****************/
-void OLED_DrawBMP(unsigned char x0, unsigned char y0,unsigned char x1, unsigned char y1,unsigned char BMP[])
-{ 	
- unsigned int j=0;
- unsigned char x,y;
-  
-  if(y1%8==0) y=y1/8;      
-  else y=y1/8+1;
-	for(y=y0;y<y1;y++)
 	{
-		OLED_Set_Pos(x0,y);
-    for(x=x0;x<x1;x++)
-	    {      
-	    	OLED_WR_Byte(BMP[j++],OLED_DATA);	    	
-	    }
-	}
-} 
+		OLED_WR_Byte(Hzk0[2*no][t],OLED_DATA);
+    }
+	OLED_Set_Pos(x,y+1);
+    for(t=0;t<16;t++)
+	{
+		OLED_WR_Byte(Hzk0[2*no+1][t],OLED_DATA);
+    }
+}
 
+/**
+ * OLED title display
+ * @param title 	0: 注意！
+ *                  1: 导航模式
+ *                  2: 蓝牙状态
+ */
+static unsigned char mod[][6] = {     // first num: num of words   second num: x start pos  remain: words location
+	{3, 41, 0, 1, 2, 0},
+	{4, 25, 3, 4, 5, 6},
+	{4, 25, 7, 8, 9, 10},
+};
+static void OLED_title_display(unsigned char title)
+{
+	unsigned char i;
+
+	if(title > (sizeof(mod)/sizeof(mod[0])) || title < 0)
+		OLED_print_error("CH16 error");
+	for(i =0; i < mod[title][0]; i++)
+	{
+		OLED_ShowCHinese_16(mod[title][1] + 16*i, 0, mod[title][2 + i]);
+	}
+}
+
+//显示汉字
+static void OLED_ShowCHinese_32(u8 x,u8 y,u8 no)
+{
+	u8 t, i, adder=0;
+
+    for(i = 0; i < 4; i++)
+    {
+		OLED_Set_Pos(x,y+i);
+		for(t=0;t<16;t++)
+		{
+			OLED_WR_Byte(Hzk1[8*no+adder][t],OLED_DATA);
+		}
+		adder++;
+		OLED_Set_Pos(x+16,y+i);
+		for(t=0;t<16;t++)
+		{
+			OLED_WR_Byte(Hzk1[8*no+adder][t],OLED_DATA);
+		}
+		adder++;
+    }
+}
+
+/**
+ * OLED content display
+ * @param content 	0: 前方直行
+ *                  1: 前方掉头
+ *                  2: 前方左转
+ *                  3: 前方右转
+ *                  4: 蓝牙断开
+ *                  5: 连接成功
+ */
+static unsigned char dir[][4] = {
+	{3, 4, 7, 8},
+	{3, 4, 5, 6},
+	{3, 4, 0, 2},
+	{3, 4, 1, 2},
+	{9, 10, 11, 12},
+	{13, 14, 15, 16},
+};
+static void OLED_content_display(unsigned char content)
+{
+	unsigned char i;
+
+	if(content > (sizeof(dir)/sizeof(dir[0])) || content < 0)
+		OLED_print_error("CH32 error");
+	for(i =0; i < 4; i++)
+	{
+		OLED_ShowCHinese_32(i*32, 3, dir[content][i]);
+	}
+}
+
+/**
+ * OLED title display
+ * @param title 	0: 注意！
+ *                  1: 导航模式
+ *                  2: 蓝牙状态
+ */
+/**
+ * OLED content display
+ * @param content 	0: 前方直行
+ *                  1: 前方掉头
+ *                  2: 前方左转
+ *                  3: 前方右转
+ *                  4: 蓝牙断开
+ *                  5: 连接成功
+ */
+void OLED_display(unsigned char title, unsigned char content)
+{
+	OLED_Clear();
+	OLED_title_display(title);
+	OLED_content_display(content);
+}
 
 //初始化SSD1306					    
 void OLED_Init(void)
@@ -216,10 +292,7 @@ void OLED_Init(void)
  	GPIO_Init(GPIOB, &GPIO_InitStructure);	  //初始化GPIOD3,6
  	GPIO_SetBits(GPIOB,GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_8);	
 
-
-
- 
-  OLED_RST_Set();
+	OLED_RST_Set();
 	delay_ms(100);
 	OLED_RST_Clr();
 	delay_ms(200);
@@ -257,18 +330,11 @@ void OLED_Init(void)
 	OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/ 
 	OLED_Clear();
 	OLED_Set_Pos(0,0); 	
-}  
+}
 
 void OLED_print_error(char *string)
 {
 	OLED_Clear();
-	OLED_ShowString(30,2,"Error!");
-	OLED_ShowString(0,6,string);
-}
-
-void OLED_print_success(char *string)
-{
-	OLED_Clear();
-	OLED_ShowString(0,2,"Congratulations");
-	OLED_ShowString(0,6,string);
+	OLED_title_display(0);
+	OLED_ShowString(0,2,string);
 }
