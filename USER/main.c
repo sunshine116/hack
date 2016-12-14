@@ -6,10 +6,13 @@
 #include "hc05.h"
 #include "key.h"
 #include "led.h"
+#include "DS18B20.h"
 
 int main(void)
 {
-	u8 i = 0, reclen=0;
+	unsigned char i = 0, reclen=0;
+	unsigned char symbol, dot;
+	unsigned int integer;
 
 	NVIC_Configuration();
 	delay_init();
@@ -17,6 +20,10 @@ int main(void)
 	LED_Init();
 	KEY_Init();
 	OLED_Init();
+
+	ReadTemperature(&symbol, &integer, &dot);
+	printf("symbol: %d  integer: %d   dot: %d\r\n", symbol, integer, dot);
+
 	while(HC05_Init())
 	{
 		OLED_print_error("BT init error!");
@@ -36,7 +43,6 @@ int main(void)
 	while(1)
 	{
 		HC05_connect_check();
-		// HC05_Sta_Show();
 		if(i == 20)
 		{
 			u2_printf("Hello pretty\r\n");

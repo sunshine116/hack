@@ -28,8 +28,7 @@ u8 HC05_Init(void)
 {
 	u8 retry=10,t;	  		 
 	u8 temp=1;
-	RCC->APB2ENR|=1<<2;    	//使能PORTA时钟	 	
-	RCC->APB2ENR|=1<<4;    	//使能PORTC时钟	 	
+	RCC->APB2ENR|=1<<3;    	//使能PORTB时钟
 	GPIOB->CRH&=0XFFFF0FFF;	//PB11,输入
 	GPIOB->CRH|=0X00008000;
 	GPIOB->ODR|=1<<11; 		//PB11上拉
