@@ -2,6 +2,7 @@
 #include "stdlib.h"
 #include "oledfont.h"  	 
 #include "delay.h"
+#include "DS18B20.h"
 //OLED的显存
 //存放格式如下.
 //[0]0 1 2 3 ... 127	
@@ -177,20 +178,22 @@ static void OLED_ShowCHinese_16(u8 x,u8 y,u8 no)
 
 /**
  * OLED title display
- * @param title 	0: 注意！
- *                  1: 导航模式
- *                  2: 蓝牙状态
+ * @param title 	0: 		注意！
+ *                  1: 		导航模式
+ *                  2: 		蓝牙状态
+ *                  3: 		测温模式
  */
 static unsigned char mod[][6] = {     // first num: num of words   second num: x start pos  remain: words location
 	{3, 41, 0, 1, 2, 0},
 	{4, 25, 3, 4, 5, 6},
 	{4, 25, 7, 8, 9, 10},
+	{4, 25, 11, 12, 5, 6},
 };
 static void OLED_title_display(unsigned char title)
 {
 	unsigned char i;
 
-	if(title > (sizeof(mod)/sizeof(mod[0])) || title < 0)
+	if(title > (sizeof(mod)/sizeof(mod[0])))
 		OLED_print_error("CH16 error");
 	for(i =0; i < mod[title][0]; i++)
 	{
@@ -241,7 +244,7 @@ static void OLED_content_display(unsigned char content)
 {
 	unsigned char i;
 
-	if(content > (sizeof(dir)/sizeof(dir[0])) || content < 0)
+	if(content > (sizeof(dir)/sizeof(dir[0])))
 		OLED_print_error("CH32 error");
 	for(i =0; i < 4; i++)
 	{
@@ -249,33 +252,72 @@ static void OLED_content_display(unsigned char content)
 	}
 }
 
+//显示数字
+void OLED_ShowNumber_16X32(u8 x,u8 y,u8 no)
+{
+	u8 t, i, adder=0;
+
+    for(i = 0; i < 4; i++)
+    {
+		OLED_Set_Pos(x,y+i);
+		for(t=0;t<16;t++)
+		{
+			OLED_WR_Byte(F16X32[4*no+adder][t],OLED_DATA);
+		}
+		adder++;
+    }
+}
+
 /**
  * OLED title display
- * @param title 	0: 注意！
- *                  1: 导航模式
- *                  2: 蓝牙状态
+ * @param title 	0: 		注意！
+ *                  1: 		导航模式
+ *                  2: 		蓝牙状态
+ *                  3: 		测温模式
  */
 /**
  * OLED content display
- * @param content 	0: 前方直行
- *                  1: 前方掉头
- *                  2: 前方左转
- *                  3: 前方右转
- *                  4: 蓝牙断开
- *                  5: 连接成功
+ * @param content 	255: 	显示温度
+ * 	               	0: 		前方直行
+ *                  1: 		前方掉头
+ *                  2: 		前方左转
+ *                  3: 		前方右转
+ *                  4: 		蓝牙断开
+ *                  5: 		连接成功
  */
 void OLED_display(unsigned char title, unsigned char content)
 {
+	unsigned char symbol, dot, x_pos = 5, i = 0;
+	unsigned int integer;
+
 	OLED_Clear();
 	OLED_title_display(title);
-	OLED_content_display(content);
+	if(255 == content)
+	{
+		ReadTemperature(&symbol, &integer, &dot);
+		OLED_ShowNumber_16X32(x_pos, 3, 11 + symbol); i++;
+		if(integer/10 != 0)
+		{
+			OLED_ShowNumber_16X32((x_pos+16*i), 3, integer/10); i++;
+		}
+		OLED_ShowNumber_16X32((x_pos+16*i), 3, integer%10); i++;
+		OLED_ShowNumber_16X32((x_pos+16*i), 3, 10); i++;
+		if(dot/10 != 0)
+		{
+			OLED_ShowNumber_16X32((x_pos+16*i), 3, dot/10); i++;
+		}
+		OLED_ShowNumber_16X32((x_pos+16*i), 3, dot%10); i++;
+		OLED_ShowNumber_16X32((x_pos+16*i), 3, 13);
+	}
+	else
+	{
+		OLED_content_display(content);
+	}
 }
 
 //初始化SSD1306					    
 void OLED_Init(void)
 { 	
- 
- 	 
  	GPIO_InitTypeDef  GPIO_InitStructure;
  	
  	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	 //使能A端口时钟
@@ -332,7 +374,7 @@ void OLED_Init(void)
 	OLED_Set_Pos(0,0); 	
 }
 
-void OLED_print_error(char *string)
+void OLED_print_error(u8 *string)
 {
 	OLED_Clear();
 	OLED_title_display(0);

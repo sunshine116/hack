@@ -1,17 +1,6 @@
 #ifndef __SYS_H
 #define __SYS_H	
 #include "stm32f10x.h"
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK STM32开发板		   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/8/18
-//版本：V1.7
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved
-////////////////////////////////////////////////////////////////////////////////// 	 
 
 //0,不支持ucos
 //1,支持ucos
@@ -68,11 +57,8 @@
 #define PGout(n)   BIT_ADDR(GPIOG_ODR_Addr,n)  //输出 
 #define PGin(n)    BIT_ADDR(GPIOG_IDR_Addr,n)  //输入
 
-
-
 void NVIC_Configuration(void);
 void MY_NVIC_Init(u8 NVIC_PreemptionPriority,u8 NVIC_SubPriority,u8 NVIC_Channel,u8 NVIC_Group);
-
-
+void JTAG_Set(u8 mode);
 
 #endif

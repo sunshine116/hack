@@ -1,3 +1,4 @@
+#include <string.h>
 #include "delay.h"
 #include "sys.h"
 #include "oled.h"
@@ -10,9 +11,8 @@
 
 int main(void)
 {
-	unsigned char i = 0, reclen=0;
-	unsigned char symbol, dot;
-	unsigned int integer;
+	unsigned char reclen=0;
+	unsigned int i = 0;
 
 	NVIC_Configuration();
 	delay_init();
@@ -20,9 +20,6 @@ int main(void)
 	LED_Init();
 	KEY_Init();
 	OLED_Init();
-
-	ReadTemperature(&symbol, &integer, &dot);
-	printf("symbol: %d  integer: %d   dot: %d\r\n", symbol, integer, dot);
 
 	while(HC05_Init())
 	{
@@ -43,10 +40,14 @@ int main(void)
 	while(1)
 	{
 		HC05_connect_check();
-		if(i == 20)
+		if(0 == i%20)
 		{
 			u2_printf("Hello pretty\r\n");
-			i = 0;
+		}
+
+		if(0 == i%100)
+		{
+			OLED_display(3, 255);
 		}
 		if(USART2_RX_STA&0X8000)
 		{
@@ -54,7 +55,16 @@ int main(void)
  			reclen=USART2_RX_STA&0X7FFF;
 			USART2_RX_BUF[reclen]=0;
 			printf("%s\r\n",USART2_RX_BUF);
+			if(strcmp((const char *)USART2_RX_BUF, "right") == 0)
+				OLED_display(1, 3);
+			if(strcmp((const char *)USART2_RX_BUF, "left") == 0)
+				OLED_display(1, 2);
+			if(strcmp((const char *)USART2_RX_BUF, "forward") == 0)
+				OLED_display(1, 0);
+			if(strcmp((const char *)USART2_RX_BUF, "turn round") == 0)
+				OLED_display(1, 1);
 			USART2_RX_STA=0;
+			i = 0;
 		}
 		i++;
 		delay_ms(50);
