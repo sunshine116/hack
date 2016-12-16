@@ -7,12 +7,20 @@
 #include "DS18B20.h"
 #include "usart2.h"
 #include "exti.h"
+#include "delay.h"
 
 #define PARSER_LEN        64
 #define TOKEN_SIZE        200
 
 #define QUERY_LEN         6
 #define DIR_LEN           11
+
+extern unsigned char order_display_flag;
+extern unsigned char dir_display_flag;
+extern unsigned int tick;
+
+static unsigned int dir_display_tick;
+static unsigned int send_tick;
 
 static unsigned int UID = 666;
 static unsigned int MID = 0;
@@ -82,6 +90,8 @@ void parse_js(char *js)
 
 void process_server_cmd(void)
 {
+	dir_display_flag = 1;
+	dir_display_tick = tick;
 	if(0 == strcmp(DIR, "right"))
 	{
 		OLED_display(1, 3);
@@ -97,6 +107,9 @@ void process_server_cmd(void)
 	else if(0 == strcmp(DIR, "turn around"))
 	{
 		OLED_display(1, 1);
+	}else
+	{
+		dir_display_flag = 0;
 	}
 	memset(DIR, 0, DIR_LEN);
 
@@ -132,8 +145,19 @@ unsigned char bt_receive(void)
 unsigned char bt_resp_send(unsigned char order, unsigned char Temp, unsigned char accident)
 {
 	char* Temp_buf = NULL, *order_buf = NULL;
-	unsigned char Temp_buf_len = 1, order_buf_len = 3;
+	unsigned char Temp_buf_len = 1, order_buf_len = 3, i;
 
+	printf("tick : %d,send_tick: %d\r\n", tick, send_tick);
+	if(tick - send_tick < 3000/TICK_PERIOD)
+	{
+		for(i = 0; i < 30; i++)
+			delay_ms(100);
+		send_tick = tick;
+	}
+	else
+	{
+		send_tick = tick;
+	}
 	if(order != NULL)
 		order_buf_len = 64;
 	order_buf = malloc(order_buf_len);
@@ -145,10 +169,12 @@ unsigned char bt_resp_send(unsigned char order, unsigned char Temp, unsigned cha
 	memset(order_buf, 0, order_buf_len);
 	if(order == 1)
 	{
+		order_display_flag = 0;
 		strcpy(order_buf, orderId);
 	}
 	else if(order == 2)
 	{
+		order_display_flag = 0;
 		strcpy(order_buf, "-1");
 	}
 		
@@ -165,8 +191,19 @@ unsigned char bt_resp_send(unsigned char order, unsigned char Temp, unsigned cha
 		Temp_string_get(Temp_buf);
 	MID++;
 	u2_printf("{\"UID\":\"%d\",\"MID\":\"%d\",\"data\":{\"orderId\":\"%s\",\"temp\":\"%s\",\"accident\":\"%d\"}}", UID, MID, order_buf, Temp_buf, accident);
-	memset(orderId, 0, QUERY_LEN);
+	printf("!!!!order_buf!!!!!!: %s\r\n", order_buf);
+	if(order != NULL)
+		memset(orderId, 0, QUERY_LEN);
 	free(order_buf);
 	free(Temp_buf);
 	return 0;
+}
+
+void dir_display_poll(void)
+{
+	if(dir_display_flag == 1)
+	{
+		if(tick - dir_display_tick > POLL_PERIOD/TICK_PERIOD)
+			dir_display_flag = 0;
+	}
 }

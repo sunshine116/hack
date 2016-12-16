@@ -16,7 +16,7 @@ unsigned int tick;
 
 int main(void)
 {
-	unsigned char order_response = 0;
+	unsigned char order_response = 0, i;
 
 	NVIC_Configuration();
 	delay_init();
@@ -30,7 +30,8 @@ int main(void)
 	while(HC05_Init())
 	{
 		OLED_print_error("BT init error!");
-		delay_ms(1000);
+		for(i = 0; i < 10; i++)
+			delay_ms(100);
 	}
 	OLED_Clear();
 
@@ -39,7 +40,8 @@ int main(void)
 		OLED_print_error("BT role set error!");
 		HC05_Set_Cmd("AT+ROLE=0");
 		HC05_Set_Cmd("AT+RESET");
-		delay_ms(1000);
+		for(i = 0; i < 10; i++)
+			delay_ms(100);
 	}
 	OLED_Clear();
 
@@ -59,6 +61,7 @@ int main(void)
 
 		temp_upload_poll();
 		bt_receive();
+		dir_display_poll();
 		tick++;
 		delay_ms(TICK_PERIOD);
 	}

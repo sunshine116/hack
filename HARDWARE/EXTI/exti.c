@@ -6,8 +6,12 @@
 #include "delay.h"
 #include "usart.h"
 #include "DS18B20.h"
+#include "oled.h"
 
 extern unsigned int tick;
+extern unsigned char order_display_flag;
+
+static unsigned int accident_tick = 0;
 static unsigned char order_flag = 0xFF;
 static unsigned char order_poll_flag = 0xFF;
 static unsigned int order_start_tick = 0;
@@ -63,6 +67,8 @@ void order_resp_start(void)
 	order_start_tick = tick;
 	order_flag = 0;
 	order_poll_flag = 0;
+	order_display_flag = 1;
+	OLED_display(4, 6);
 }
 
 //0: read the tmp
@@ -95,7 +101,12 @@ unsigned char order_resp_poll(unsigned char *tmp)
 
 unsigned char accident_sta_get(void)
 {
-	return accident_flag;
+	if(accident_flag && tick - accident_tick > POLL_PERIOD/TICK_PERIOD)
+	{
+		accident_tick = tick;
+		return 1;
+	}
+	return 0;
 }
 
 void accident_sta_reset(void)

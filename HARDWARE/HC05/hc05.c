@@ -140,13 +140,15 @@ void HC05_CFG_CMD(u8 *str)
 void HC05_connect_check(void)
 {
 	static unsigned char flag = 0;
+	unsigned char i;
 	if(HC05_LED)
 	{
 		if(0 == flag)
 		{
 			OLED_display(2, 5);
 			flag = 1;
-			delay_ms(3000);
+			for(i = 0; i < 30; i++)
+				delay_ms(100);
 		}
 	}
 	else
@@ -154,7 +156,10 @@ void HC05_connect_check(void)
 		flag = 0;
 		OLED_display(0, 4);
 		while(!HC05_LED)
-			delay_ms(1000);
+		{
+			for(i = 0; i < 10; i++)
+				delay_ms(100);
+		}
 	}
 }
 
