@@ -182,12 +182,14 @@ static void OLED_ShowCHinese_16(u8 x,u8 y,u8 no)
  *                  1: 		导航模式
  *                  2: 		蓝牙状态
  *                  3: 		测温模式
+ *                  4: 		接单模式
  */
 static unsigned char mod[][6] = {     // first num: num of words   second num: x start pos  remain: words location
 	{3, 41, 0, 1, 2, 0},
 	{4, 25, 3, 4, 5, 6},
 	{4, 25, 7, 8, 9, 10},
 	{4, 25, 11, 12, 5, 6},
+	{4, 25, 13, 14, 5, 6},
 };
 static void OLED_title_display(unsigned char title)
 {
@@ -231,6 +233,7 @@ static void OLED_ShowCHinese_32(u8 x,u8 y,u8 no)
  *                  3: 前方右转
  *                  4: 蓝牙断开
  *                  5: 连接成功
+ *                  6: 是否接单
  */
 static unsigned char dir[][4] = {
 	{3, 4, 7, 8},
@@ -239,6 +242,7 @@ static unsigned char dir[][4] = {
 	{3, 4, 1, 2},
 	{9, 10, 11, 12},
 	{13, 14, 15, 16},
+	{17, 18, 19, 20},
 };
 static void OLED_content_display(unsigned char content)
 {
@@ -274,6 +278,7 @@ void OLED_ShowNumber_16X32(u8 x,u8 y,u8 no)
  *                  1: 		导航模式
  *                  2: 		蓝牙状态
  *                  3: 		测温模式
+ *                  4: 		接单模式
  */
 /**
  * OLED content display
@@ -284,6 +289,7 @@ void OLED_ShowNumber_16X32(u8 x,u8 y,u8 no)
  *                  3: 		前方右转
  *                  4: 		蓝牙断开
  *                  5: 		连接成功
+ *                  6: 		是否接单
  */
 void OLED_display(unsigned char title, unsigned char content)
 {

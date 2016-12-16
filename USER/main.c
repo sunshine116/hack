@@ -10,10 +10,13 @@
 #include "DS18B20.h"
 #include "js_parse.h"
 #include "exti.h"
+#include "DS18B20.h"
+
+unsigned int tick;
 
 int main(void)
 {
-	unsigned int i = 0;
+	unsigned char order_response = 0;
 
 	NVIC_Configuration();
 	delay_init();
@@ -22,6 +25,7 @@ int main(void)
 	KEY_Init();
 	OLED_Init();
 	EXTI_Init();
+	ReadTemperature();
 
 	while(HC05_Init())
 	{
@@ -42,18 +46,16 @@ int main(void)
 	while(1)
 	{
 		HC05_connect_check();
-		if(0 == i%100)
+
+		if(!order_resp_poll(&order_response))
 		{
-			u2_printf("{\"UID\":\"hello001\",\"MID\":\"110\",\"data\":{\"dir\":\"%s\",\"query\":\"order\"}}\r\n", "right");
+			bt_resp_send(order_response, 1);
 		}
 
-		if(0 == i%100)
-		{
-			OLED_display(3, 255);
-		}
+		temp_upload_poll();
 		bt_receive();
-		i++;
-		delay_ms(50);
+		tick++;
+		delay_ms(TICK_PERIOD);
 	}
 
 }

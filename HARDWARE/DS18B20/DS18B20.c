@@ -2,6 +2,10 @@
 #include "DS18B20.h"
 #include "delay.h"
 #include "oled.h"
+#include "js_parse.h"
+
+extern unsigned int tick;
+static unsigned int temp_start_tick = 0;
 
 static unsigned char SYMBOL;
 static unsigned int INTEGER;
@@ -40,7 +44,7 @@ static unsigned char Init_DS18B20(void)
 	delay_us(40); 				//等待（15~60us)
 	DQ_port_set(0);
 	x=DQ_in; 					//用X的值来判断初始化有没有成功，18B20存在的话X=0，否则X=1 
-	delay_us(150); 
+	delay_us(150);
 	return x;
 }
 
@@ -82,7 +86,7 @@ static void WriteOneChar(unsigned char dat)
 }
 
 //读温度值（低位放tempL;高位放tempH;）
-static void ReadTemperature(void)
+void ReadTemperature(void)
 {
 	unsigned int sdata;			//测量到的温度的整数部分
 	unsigned char xiaoshu1;		//小数第一位
@@ -119,8 +123,6 @@ static void ReadTemperature(void)
 
 void Temp_get(unsigned char *symbol, unsigned int *integer, unsigned char *dot)
 {
-	ReadTemperature();
-
 	*symbol = SYMBOL;
 	*integer = INTEGER;
 	*dot = DOT;
@@ -131,9 +133,36 @@ void Temp_string_get(char *buf)
 	unsigned char symbol = 0, dot = 0;
 	unsigned int integer = 0;
 
+	ReadTemperature();
 	Temp_get(&symbol, &integer, &dot);
 	if(symbol == 0)
 		sprintf(buf, "-%d.%d", integer, dot);
 	else
 		sprintf(buf, "+%d.%d", integer, dot);
+}
+
+void temp_upload_poll(void)
+{
+	if(0xFFFFFFFF - temp_start_tick >= POLL_PERIOD/TICK_PERIOD)
+	{
+		if(tick - temp_start_tick > POLL_PERIOD/TICK_PERIOD || tick < temp_start_tick)
+		{
+			bt_resp_send(0, 1);
+			OLED_display(3, 255);
+			temp_start_tick = tick;
+		}
+	}else
+	{
+		if(tick > (POLL_PERIOD/TICK_PERIOD - (0xFFFFFFFF - temp_start_tick)))
+		{
+			bt_resp_send(0, 1);
+			OLED_display(3, 255);
+			temp_start_tick = tick;
+		}
+	}
+}
+
+void temp_tick_set(unsigned int tick)
+{
+	temp_start_tick = tick;
 }

@@ -2,6 +2,8 @@
 #define __SYS_H	
 #include "stm32f10x.h"
 
+#define POLL_PERIOD 5000 //unit is ms
+#define TICK_PERIOD 50 //unit is ms
 //0,不支持ucos
 //1,支持ucos
 #define SYSTEM_SUPPORT_UCOS		0		//定义系统文件夹是否支持UCOS
@@ -70,6 +72,7 @@
 
 void NVIC_Configuration(void);
 void MY_NVIC_Init(u8 NVIC_PreemptionPriority,u8 NVIC_SubPriority,u8 NVIC_Channel,u8 NVIC_Group);
+void Ex_NVIC_Config(u8 GPIOx,u8 BITx,u8 TRIM);
 void JTAG_Set(u8 mode);
 
 #endif

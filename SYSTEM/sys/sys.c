@@ -68,7 +68,7 @@ void JTAG_Set(u8 mode)
 //TRIM:触发模式,1,下升沿;2,上降沿;3，任意电平触发
 //该函数一次只能配置1个IO口,多个IO口,需多次调用
 //该函数会自动开启对应中断,以及屏蔽线   	    
-void Ex_NVIC_Config(u8 GPIOx,u8 BITx,u8 TRIM) 
+void Ex_NVIC_Config(u8 GPIOx,u8 BITx,u8 TRIM)
 {
 	u8 EXTADDR;
 	u8 EXTOFFSET;
