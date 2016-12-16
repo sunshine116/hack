@@ -9,6 +9,7 @@
 #include "led.h"
 #include "DS18B20.h"
 #include "js_parse.h"
+#include "exti.h"
 
 int main(void)
 {
@@ -20,6 +21,7 @@ int main(void)
 	LED_Init();
 	KEY_Init();
 	OLED_Init();
+	EXTI_Init();
 
 	while(HC05_Init())
 	{
@@ -42,7 +44,7 @@ int main(void)
 		HC05_connect_check();
 		if(0 == i%100)
 		{
-			u2_printf("{\"UID\":\"hello001\",\"MID\":\"110\",\"data\":{\"dir\":%s,\"query\":\"order\"}}\r\n", "hello");
+			u2_printf("{\"UID\":\"hello001\",\"MID\":\"110\",\"data\":{\"dir\":\"%s\",\"query\":\"order\"}}\r\n", "right");
 		}
 
 		if(0 == i%100)
