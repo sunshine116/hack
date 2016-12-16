@@ -11,13 +11,14 @@ extern unsigned int tick;
 static unsigned char order_flag = 0xFF;
 static unsigned char order_poll_flag = 0xFF;
 static unsigned int order_start_tick = 0;
+static unsigned char accident_flag = 0;
 //外部中断0服务程序
 void EXTI0_IRQHandler(void)
 {
 	delay_ms(20);	//消抖
 	if(KEY1==0)	//WK_UP按键
 	{
-		printf("KEY0\r\n");
+		accident_flag = 1;
 	}		 
 	EXTI->PR=1<<0;  //清除LINE0上的中断标志位  
 }
@@ -89,6 +90,15 @@ unsigned char order_resp_poll(unsigned char *tmp)
 		}
 		return 1;
 	}
+	return 1;
 }
 
+unsigned char accident_sta_get(void)
+{
+	return accident_flag;
+}
 
+void accident_sta_reset(void)
+{
+	accident_flag = 0;
+}

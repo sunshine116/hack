@@ -47,9 +47,14 @@ int main(void)
 	{
 		HC05_connect_check();
 
+		if(accident_sta_get())
+		{
+			bt_resp_send(0, 0, 1);
+			accident_sta_reset();
+		}
 		if(!order_resp_poll(&order_response))
 		{
-			bt_resp_send(order_response, 1);
+			bt_resp_send(order_response, 1, 0);
 		}
 
 		temp_upload_poll();

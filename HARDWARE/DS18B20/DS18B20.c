@@ -147,7 +147,7 @@ void temp_upload_poll(void)
 	{
 		if(tick - temp_start_tick > POLL_PERIOD/TICK_PERIOD || tick < temp_start_tick)
 		{
-			bt_resp_send(0, 1);
+			bt_resp_send(0, 1, 0);
 			OLED_display(3, 255);
 			temp_start_tick = tick;
 		}
@@ -155,7 +155,7 @@ void temp_upload_poll(void)
 	{
 		if(tick > (POLL_PERIOD/TICK_PERIOD - (0xFFFFFFFF - temp_start_tick)))
 		{
-			bt_resp_send(0, 1);
+			bt_resp_send(0, 1, 0);
 			OLED_display(3, 255);
 			temp_start_tick = tick;
 		}

@@ -6,6 +6,7 @@
 #include "oled.h"
 #include "DS18B20.h"
 #include "usart2.h"
+#include "exti.h"
 
 #define PARSER_LEN        64
 #define TOKEN_SIZE        200
@@ -18,19 +19,10 @@ static unsigned int MID = 0;
 static char orderId[QUERY_LEN] = {0};
 static char DIR[DIR_LEN] = {0};
 
-static void getstring(char *dst, char *src, int start, int end)
-{
-    int i, j = 0;
-    for (i = start; i < end; i++) {
-        dst[j++] = src[i];
-    }
-    dst[j] = '\0';
-}
-
 char js_buf[64];
 static char *js_parse_target(char *js_start, char *target, unsigned char *result)
 {
-	unsigned char i, j, k;
+	unsigned char j, k;
 
 	memset(js_buf, 0, 64);
 	if(!memcmp(js_start, target, strlen(target)))
@@ -57,7 +49,7 @@ static char *js_parse_target(char *js_start, char *target, unsigned char *result
 void parse_js(char *js)
 {
 	char *buf;
-	unsigned char i, j, k, result = 1;
+	unsigned char i, result = 1;
 
 	for(i = 0; i < strlen(js); i++)
 	{
@@ -102,7 +94,7 @@ void process_server_cmd(void)
 	{
 		OLED_display(1, 0);
 	}
-	else if(0 == strcmp(DIR, "turn round"))
+	else if(0 == strcmp(DIR, "turn around"))
 	{
 		OLED_display(1, 1);
 	}
@@ -135,7 +127,9 @@ unsigned char bt_receive(void)
 //			2:	no
 //Temp:		0:	NULL
 //			1:	temperature
-unsigned char bt_resp_send(unsigned char order, unsigned char Temp)
+//accident:	0:	NULL
+//			1:	accident
+unsigned char bt_resp_send(unsigned char order, unsigned char Temp, unsigned char accident)
 {
 	char* Temp_buf = NULL, *order_buf = NULL;
 	unsigned char Temp_buf_len = 1, order_buf_len = 3;
@@ -170,7 +164,7 @@ unsigned char bt_resp_send(unsigned char order, unsigned char Temp)
 	if(Temp == 1)
 		Temp_string_get(Temp_buf);
 	MID++;
-	u2_printf("{\"UID\":\"%d\",\"MID\":\"%d\",\"data\":{\"orderId\":\"%s\",\"temp\":\"%s\"}}", UID, MID, order_buf, Temp_buf);
+	u2_printf("{\"UID\":\"%d\",\"MID\":\"%d\",\"data\":{\"orderId\":\"%s\",\"temp\":\"%s\",\"accident\":\"%d\"}}", UID, MID, order_buf, Temp_buf, accident);
 	memset(orderId, 0, QUERY_LEN);
 	free(order_buf);
 	free(Temp_buf);
