@@ -362,7 +362,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\KEY;..\HARDWARE\OLED;..\HARDWARE\HC05;..\HARDWARE\USART2;..\HARDWARE\KEY;..\HARDWARE\LED;..\HARDWARE\DS18B20;..\JSMN</IncludePath>
+              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\KEY;..\HARDWARE\OLED;..\HARDWARE\HC05;..\HARDWARE\USART2;..\HARDWARE\KEY;..\HARDWARE\LED;..\HARDWARE\DS18B20;..\JSMN;..\HARDWARE\EXTI</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -464,6 +464,11 @@
               <FileName>DS18B20.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\DS18B20\DS18B20.c</FilePath>
+            </File>
+            <File>
+              <FileName>exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\EXTI\exti.c</FilePath>
             </File>
           </Files>
         </Group>

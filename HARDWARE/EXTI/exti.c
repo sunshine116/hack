@@ -19,7 +19,7 @@ static unsigned char accident_flag = 0;
 //外部中断0服务程序
 void EXTI0_IRQHandler(void)
 {
-	delay_ms(20);	//消抖
+	delay_ms(10);	//消抖
 	if(KEY1==0)	//WK_UP按键
 	{
 		accident_flag = 1;
@@ -29,11 +29,10 @@ void EXTI0_IRQHandler(void)
 //外部中断9~5服务程序
 void EXTI9_5_IRQHandler(void)
 {			
-	delay_ms(20);   //消抖			 
+	delay_ms(10);   //消抖
     if(KEY0==0)		//按键0
 	{
-		printf("yes\r\n");
-		order_flag = 1; //yes
+		order_flag = 2; //no
 	}
  	EXTI->PR=1<<6;     //清除LINE6上的中断标志位  
 }
@@ -43,8 +42,7 @@ void EXTI15_10_IRQHandler(void)
 	delay_ms(20);   //消抖			 
     if(KEY2==1)		//按键1
 	{
-		printf("no\r\n");
-		order_flag = 2;  //no
+		order_flag = 1;  //yes
 	}
  	EXTI->PR=1<<13; //清除LINE13上的中断标志位  
 }

@@ -147,7 +147,7 @@ void HC05_connect_check(void)
 		{
 			OLED_display(2, 5);
 			flag = 1;
-			for(i = 0; i < 30; i++)
+			for(i = 0; i < 20; i++)
 				delay_ms(100);
 		}
 	}

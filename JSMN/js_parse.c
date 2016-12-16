@@ -116,7 +116,6 @@ void process_server_cmd(void)
 	if(0 != strcmp(orderId, ""))
 	{
 		order_resp_start();
-		printf("getting\r\n");
 	}
 }
 
@@ -147,7 +146,6 @@ unsigned char bt_resp_send(unsigned char order, unsigned char Temp, unsigned cha
 	char* Temp_buf = NULL, *order_buf = NULL;
 	unsigned char Temp_buf_len = 1, order_buf_len = 3, i;
 
-	printf("tick : %d,send_tick: %d\r\n", tick, send_tick);
 	if(tick - send_tick < 3000/TICK_PERIOD)
 	{
 		for(i = 0; i < 30; i++)
@@ -175,7 +173,8 @@ unsigned char bt_resp_send(unsigned char order, unsigned char Temp, unsigned cha
 	else if(order == 2)
 	{
 		order_display_flag = 0;
-		strcpy(order_buf, "-1");
+		memset(order_buf, '-', 1);
+		strcpy(order_buf + 1, orderId);
 	}
 		
 	if(Temp == 1)
