@@ -1,12 +1,17 @@
+#include <stdio.h>
 #include "DS18B20.h"
 #include "delay.h"
 #include "oled.h"
+
+static unsigned char SYMBOL;
+static unsigned int INTEGER;
+static unsigned char DOT;
 
 static unsigned char tempL=0; 		//设全局变量
 static unsigned char tempH=0;
 
 //0: in  else: out
-void DQ_port_set(unsigned char dir)
+static void DQ_port_set(unsigned char dir)
 {
 	RCC->APB2ENR|=1<<3;    	//使能PORTB时钟
 	if(dir == 0)
@@ -77,7 +82,7 @@ static void WriteOneChar(unsigned char dat)
 }
 
 //读温度值（低位放tempL;高位放tempH;）
-void ReadTemperature(unsigned char *symbol, unsigned int *integer, unsigned char *dot)
+static void ReadTemperature(void)
 {
 	unsigned int sdata;			//测量到的温度的整数部分
 	unsigned char xiaoshu1;		//小数第一位
@@ -107,7 +112,28 @@ void ReadTemperature(unsigned char *symbol, unsigned int *integer, unsigned char
 	xiaoshu2 = (tempL&0x0f)*100/16%10;	//小数第二位
 	xiaoshu=xiaoshu1*10+xiaoshu2; 		//小数两位
 
-	*symbol = fg;
-	*integer = sdata;
-	*dot = xiaoshu;
+	SYMBOL = fg;
+	INTEGER = sdata;
+	DOT = xiaoshu;
+}
+
+void Temp_get(unsigned char *symbol, unsigned int *integer, unsigned char *dot)
+{
+	ReadTemperature();
+
+	*symbol = SYMBOL;
+	*integer = INTEGER;
+	*dot = DOT;
+}
+
+void Temp_string_get(char *buf)
+{
+	unsigned char symbol = 0, dot = 0;
+	unsigned int integer = 0;
+
+	Temp_get(&symbol, &integer, &dot);
+	if(symbol == 0)
+		sprintf(buf, "-%d.%d", integer, dot);
+	else
+		sprintf(buf, "+%d.%d", integer, dot);
 }

@@ -4,6 +4,7 @@
 #define DQ_in 	PBin(2)
 #define DQ_out 	PBout(2)
 
-void ReadTemperature(unsigned char *symbol, unsigned int *integer, unsigned char *dot);
+void Temp_get(unsigned char *symbol, unsigned int *integer, unsigned char *dot);
+void Temp_string_get(char *buf);
 
 #endif

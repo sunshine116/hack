@@ -294,7 +294,7 @@ void OLED_display(unsigned char title, unsigned char content)
 	OLED_title_display(title);
 	if(255 == content)
 	{
-		ReadTemperature(&symbol, &integer, &dot);
+		Temp_get(&symbol, &integer, &dot);
 		OLED_ShowNumber_16X32(x_pos, 3, 11 + symbol); i++;
 		if(integer/10 != 0)
 		{

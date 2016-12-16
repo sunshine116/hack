@@ -72,6 +72,7 @@ void u2_printf(char* fmt,...)
 	while(DMA1_Channel7->CNDTR!=0);	//等待通道7传输完成   
 	UART_DMA_Enable(DMA1_Channel7,strlen((const char*)USART2_TX_BUF)); 	//通过dma发送出去
 }
+
 //定时器4中断服务程序		    
 void TIM4_IRQHandler(void)
 { 	

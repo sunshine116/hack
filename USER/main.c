@@ -8,10 +8,10 @@
 #include "key.h"
 #include "led.h"
 #include "DS18B20.h"
+#include "js_parse.h"
 
 int main(void)
 {
-	unsigned char reclen=0;
 	unsigned int i = 0;
 
 	NVIC_Configuration();
@@ -40,32 +40,16 @@ int main(void)
 	while(1)
 	{
 		HC05_connect_check();
-		if(0 == i%20)
+		if(0 == i%100)
 		{
-			u2_printf("Hello pretty\r\n");
+			u2_printf("{\"UID\":\"hello001\",\"MID\":\"110\",\"data\":{\"dir\":%s,\"query\":\"order\"}}\r\n", "hello");
 		}
 
 		if(0 == i%100)
 		{
 			OLED_display(3, 255);
 		}
-		if(USART2_RX_STA&0X8000)
-		{
-			printf("Receive: ");
- 			reclen=USART2_RX_STA&0X7FFF;
-			USART2_RX_BUF[reclen]=0;
-			printf("%s\r\n",USART2_RX_BUF);
-			if(strcmp((const char *)USART2_RX_BUF, "right") == 0)
-				OLED_display(1, 3);
-			if(strcmp((const char *)USART2_RX_BUF, "left") == 0)
-				OLED_display(1, 2);
-			if(strcmp((const char *)USART2_RX_BUF, "forward") == 0)
-				OLED_display(1, 0);
-			if(strcmp((const char *)USART2_RX_BUF, "turn round") == 0)
-				OLED_display(1, 1);
-			USART2_RX_STA=0;
-			i = 0;
-		}
+		bt_receive();
 		i++;
 		delay_ms(50);
 	}

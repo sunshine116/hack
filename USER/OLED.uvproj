@@ -221,7 +221,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <RoSelD>3</RoSelD>
@@ -362,7 +362,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\KEY;..\HARDWARE\OLED;..\HARDWARE\HC05;..\HARDWARE\USART2;..\HARDWARE\KEY;..\HARDWARE\LED;..\HARDWARE\DS18B20</IncludePath>
+              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\KEY;..\HARDWARE\OLED;..\HARDWARE\HC05;..\HARDWARE\USART2;..\HARDWARE\KEY;..\HARDWARE\LED;..\HARDWARE\DS18B20;..\JSMN</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -419,6 +419,16 @@
               <FileName>system_stm32f10x.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\system_stm32f10x.c</FilePath>
+            </File>
+            <File>
+              <FileName>js_parse.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\JSMN\js_parse.c</FilePath>
+            </File>
+            <File>
+              <FileName>jsmn.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\JSMN\jsmn.c</FilePath>
             </File>
           </Files>
         </Group>
