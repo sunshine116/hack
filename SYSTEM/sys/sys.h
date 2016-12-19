@@ -2,9 +2,14 @@
 #define __SYS_H	
 #include "stm32f10x.h"
 
-#define POLL_PERIOD 5000 //unit is ms
-#define TICK_PERIOD 50 //unit is ms
-#define SYSTEM_TICK 	1000 //unit is ms
+#define ACCIDENT_PERIOD 	5000 //unit is ms
+#define ORDER_PERIOD 		5000 //unit is ms
+#define DIR_PERIOD 		5000 //unit is ms
+#define TEMP_PERIOD 		5000 //unit is ms
+#define TICK_PERIOD 		50 //unit is ms
+#define SYSTEM_TICK 		1000 //unit is ms
+#define TIME_PER_TICK 		(1000/SYSTEM_TICK) //unit is ms
+
 //0,不支持ucos
 //1,支持ucos
 #define SYSTEM_SUPPORT_UCOS		0		//定义系统文件夹是否支持UCOS
@@ -76,5 +81,7 @@ void MY_NVIC_Init(u8 NVIC_PreemptionPriority,u8 NVIC_SubPriority,u8 NVIC_Channel
 void Ex_NVIC_Config(u8 GPIOx,u8 BITx,u8 TRIM);
 void JTAG_Set(u8 mode);
 void Stm32_Clock_Init(u8 PLL);
+unsigned int get_tick(void);
+unsigned char system_tick_init(void);
 
 #endif

@@ -17,7 +17,6 @@
 
 extern unsigned char order_display_flag;
 extern unsigned char dir_display_flag;
-extern unsigned int tick;
 
 static unsigned int dir_display_tick;
 static unsigned int send_tick;
@@ -91,7 +90,7 @@ void parse_js(char *js)
 void process_server_cmd(void)
 {
 	dir_display_flag = 1;
-	dir_display_tick = tick;
+	dir_display_tick = get_tick();
 	if(0 == strcmp(DIR, "right"))
 	{
 		OLED_display(1, 3);
@@ -146,15 +145,15 @@ unsigned char bt_resp_send(unsigned char order, unsigned char Temp, unsigned cha
 	char* Temp_buf = NULL, *order_buf = NULL;
 	unsigned char Temp_buf_len = 1, order_buf_len = 3, i;
 
-	if(tick - send_tick < 3000/TICK_PERIOD)
+	if(get_tick() - send_tick < 3000/TICK_PERIOD)
 	{
 		for(i = 0; i < 30; i++)
 			delay_ms(100);
-		send_tick = tick;
+		send_tick = get_tick();
 	}
 	else
 	{
-		send_tick = tick;
+		send_tick = get_tick();
 	}
 	if(order != NULL)
 		order_buf_len = 64;
@@ -202,7 +201,7 @@ void dir_display_poll(void)
 {
 	if(dir_display_flag == 1)
 	{
-		if(tick - dir_display_tick > POLL_PERIOD/TICK_PERIOD)
+		if(get_tick() - dir_display_tick > DIR_PERIOD/TIME_PER_TICK)
 			dir_display_flag = 0;
 	}
 }

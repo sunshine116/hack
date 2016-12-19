@@ -11,9 +11,6 @@
 #include "js_parse.h"
 #include "exti.h"
 #include "DS18B20.h"
-#include "system.h"
-
-unsigned int tick;
 
 int main(void)
 {
@@ -58,7 +55,6 @@ int main(void)
 		if(accident_sta_get())
 		{
 			bt_resp_send(0, 0, 1);
-			accident_sta_reset();
 		}
 		if(!order_resp_poll(&order_response))
 		{
@@ -68,8 +64,6 @@ int main(void)
 		temp_upload_poll();
 		bt_receive();
 		dir_display_poll();
-		tick++;
-		delay_ms(TICK_PERIOD);
 	}
 
 }

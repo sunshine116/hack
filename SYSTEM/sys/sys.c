@@ -1,5 +1,7 @@
 #include "sys.h"
 
+static unsigned int jiff = 0;
+
 void NVIC_Configuration(void)
 {
 
@@ -130,4 +132,22 @@ void Stm32_Clock_Init(u8 PLL)
 		temp=RCC->CFGR>>2;
 		temp&=0x03;
 	}
+}
+
+unsigned char system_tick_init(void)
+{
+	unsigned char ret = 1;
+
+    ret = SysTick_Config(SystemCoreClock/SYSTEM_TICK);
+    return ret;
+}
+
+void SysTick_Handler(void)
+{
+    jiff++;
+}
+
+unsigned int get_tick(void)
+{
+	return jiff;
 }

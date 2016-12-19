@@ -6,7 +6,6 @@
 
 void Temp_get(unsigned char *symbol, unsigned int *integer, unsigned char *dot);
 void Temp_string_get(char *buf);
-void temp_tick_set(unsigned int tick);
 void temp_upload_poll(void);
 void ReadTemperature(void);
 
