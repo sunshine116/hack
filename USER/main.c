@@ -11,16 +11,22 @@
 #include "js_parse.h"
 #include "exti.h"
 #include "DS18B20.h"
+#include "system.h"
 
 unsigned int tick;
 
 int main(void)
 {
-	unsigned char order_response = 0, i;
+	unsigned char order_response = 0, i, ret = 1;
 
+	Stm32_Clock_Init(9);
 	NVIC_Configuration();
-	delay_init();
 	uart_init(9600);
+	ret = system_tick_init();
+	if(ret != 0)
+	{
+		printf("system tick init error!\r\n");
+	}
 	LED_Init();
 	KEY_Init();
 	OLED_Init();
