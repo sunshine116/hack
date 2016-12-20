@@ -9,7 +9,6 @@ u8 HC05_Init(void);
 void HC05_CFG_CMD(u8 *str);
 u8 HC05_Get_Role(void);
 u8 HC05_Set_Cmd(u8* atstr);
-void HC05_connect_check(void);
 void HC05_Role_Show(void);
 #endif  
 

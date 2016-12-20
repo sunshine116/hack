@@ -136,33 +136,6 @@ void HC05_CFG_CMD(u8 *str)
 	} 				 
 }
 
-//显示ATK-HC05模块的连接状态
-void HC05_connect_check(void)
-{
-	static unsigned char flag = 0;
-	unsigned char i;
-	if(HC05_LED)
-	{
-		if(0 == flag)
-		{
-			OLED_display(2, 5);
-			flag = 1;
-			for(i = 0; i < 20; i++)
-				delay_ms(100);
-		}
-	}
-	else
-	{
-		flag = 0;
-		OLED_display(0, 4);
-		while(!HC05_LED)
-		{
-			for(i = 0; i < 10; i++)
-				delay_ms(100);
-		}
-	}
-}
-
 //显示ATK-HC05模块的主从状态
 void HC05_Role_Show(void)
 {

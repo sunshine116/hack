@@ -10,11 +10,9 @@
 
 extern unsigned char order_display_flag;
 
-static unsigned int accident_tick = 0;
-static unsigned char order_flag = 0xFF;
-static unsigned char order_poll_flag = 0xFF;
-static unsigned int order_start_tick = 0;
 static unsigned char accident_flag = 0;
+static unsigned char order_flag = 0xFF;
+
 //外部中断0服务程序
 void EXTI0_IRQHandler(void)
 {
@@ -58,77 +56,22 @@ void EXTI_Init(void)
 	MY_NVIC_Init(2,0,EXTI15_10_IRQn,2);
 }
 
-void order_resp_start(void)
+unsigned char is_accident_happen(void)
 {
-	order_start_tick = get_tick();
-	order_flag = 0;
-	order_poll_flag = 0;
-	order_display_flag = 1;
-	OLED_display(4, 6);
-}
-static unsigned char reset_order_flags(void)
-{
-	order_poll_flag = 0xFF;
-	return 0;
+	return accident_flag;
 }
 
-unsigned char accident_sta_get(void)
+void clear_accident_flag(void)
 {
-	if(accident_flag)
-	{
-		if(0xFFFFFFFF - accident_tick >= ACCIDENT_PERIOD/TIME_PER_TICK)
-		{
-			if(get_tick() - accident_tick >= ACCIDENT_PERIOD/TIME_PER_TICK)
-			{
-				accident_tick = get_tick();
-				accident_flag = 0;
-				return 1;
-			}
-		}
-		else
-		{
-			if(get_tick() >= (ACCIDENT_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - accident_tick)))
-			{
-				accident_tick = get_tick();
-				accident_flag = 0;
-				return 1;
-			}
-		}
-	}
-	return 0;
+	accident_flag = 0;
 }
-//0: read the tmp
-//1: poll contiune
-unsigned char order_resp_poll(unsigned char *tmp)
+
+unsigned char get_order_result(void)
 {
-	if(order_poll_flag == 0)
-	{
-		if(0xFFFFFFFF - order_start_tick >= ORDER_PERIOD/TIME_PER_TICK)
-		{
-			if(get_tick() - order_start_tick >= ORDER_PERIOD/TIME_PER_TICK)
-			{
-				*tmp = 2;
-				return reset_order_flags();
-			}
-			else if(order_flag)
-			{
-				*tmp = order_flag;
-				return reset_order_flags();
-			}
-		}
-		else
-		{
-			if(get_tick() >= (ORDER_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - accident_tick)))
-			{
-				*tmp = 2;
-				return reset_order_flags();
-			}
-			else if(order_flag)
-			{
-				*tmp = order_flag;
-				return reset_order_flags();
-			}
-		}
-	}
-	return 1;
+	return order_flag;
+}
+
+void set_order_flag(unsigned char tmp)
+{
+	order_flag = tmp;
 }

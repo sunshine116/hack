@@ -11,10 +11,11 @@
 #include "js_parse.h"
 #include "exti.h"
 #include "DS18B20.h"
+#include "poll.h"
 
 int main(void)
 {
-	unsigned char order_response = 0, i, ret = 1;
+	unsigned char i, ret = 1;
 
 	Stm32_Clock_Init(9);
 	NVIC_Configuration();
@@ -50,19 +51,11 @@ int main(void)
 
 	while(1)
 	{
-		HC05_connect_check();
-
-		if(accident_sta_get())
-		{
-			bt_resp_send(0, 0, 1);
-		}
-		if(!order_resp_poll(&order_response))
-		{
-			bt_resp_send(order_response, 1, 0);
-		}
-
+		HC05_connect_poll();
+		accident_sta_poll();
+		order_resp_poll();
 		temp_upload_poll();
-		bt_receive();
+		bt_receive_poll();
 		dir_display_poll();
 	}
 

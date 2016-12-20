@@ -4,8 +4,6 @@
 #include "oled.h"
 #include "js_parse.h"
 
-static unsigned int temp_start_tick = 0;
-
 static unsigned char SYMBOL;
 static unsigned int INTEGER;
 static unsigned char DOT;
@@ -138,27 +136,4 @@ void Temp_string_get(char *buf)
 		sprintf(buf, "-%d.%d", integer, dot);
 	else
 		sprintf(buf, "+%d.%d", integer, dot);
-}
-
-void temp_upload_poll(void)
-{
-	if(0xFFFFFFFF - temp_start_tick >= TEMP_PERIOD/TIME_PER_TICK)
-	{
-		if(get_tick() - temp_start_tick >= TEMP_PERIOD/TIME_PER_TICK)
-		{
-			bt_resp_send(0, 1, 0);
-			OLED_display(3, 255);
-			temp_start_tick = get_tick();
-			printf("temp display\r\n");
-		}
-	}else
-	{
-		if(get_tick() > (TEMP_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - temp_start_tick)))
-		{
-			bt_resp_send(0, 1, 0);
-			OLED_display(3, 255);
-			temp_start_tick = get_tick();
-			printf("temp display\r\n");
-		}
-	}
 }

@@ -2,10 +2,11 @@
 #define __EXIT_H	 
 #include "sys.h"
 
-unsigned char order_resp_poll(unsigned char *tmp);
-void order_resp_start(void);
 void EXTI_Init(void);	//外部中断初始化
-unsigned char accident_sta_get(void);
+unsigned char is_accident_happen(void);
+unsigned char get_order_result(void);
+void set_order_flag(unsigned char tmp);
+void clear_accident_flag(void);
 
 #endif
 

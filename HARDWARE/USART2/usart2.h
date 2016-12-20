@@ -17,16 +17,3 @@ void UART_DMA_Config(DMA_Channel_TypeDef*DMA_CHx,u32 cpar,u32 cmar);
 void UART_DMA_Enable(DMA_Channel_TypeDef*DMA_CHx,u16 len);
 void u2_printf(char* fmt, ...);
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
