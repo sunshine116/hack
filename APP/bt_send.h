@@ -7,11 +7,11 @@ typedef struct bt_package{
 	struct bt_package *next;
 }bt_package_t;
 
-void bt_send_order(unsigned char order_response);
-unsigned char add_package(char *json, unsigned char type);
-void delete_package(void);
-bt_package_t *get_package_head(void);
-unsigned char bt_send(void);
+void add_order_package(unsigned char order_response);
+unsigned char add_send_package(unsigned char order, unsigned char Temp, unsigned char accident);
+void delete_send_package_head(void);
+unsigned int get_pending_package_num(void);
+void bt_send(void);
 
 
 #endif

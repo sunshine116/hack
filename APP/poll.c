@@ -56,7 +56,7 @@ void accident_sta_poll(void)
 			{
 				accident_tick = get_tick();
 				clear_accident_flag();
-				js_compose(0, 0, 1);
+				add_send_package(0, 0, 1);
 			}
 		}
 		else
@@ -65,7 +65,7 @@ void accident_sta_poll(void)
 			{
 				accident_tick = get_tick();
 				clear_accident_flag();
-				js_compose(0, 0, 1);
+				add_send_package(0, 0, 1);
 			}
 		}
 	}
@@ -95,22 +95,22 @@ void order_resp_poll(void)
 		{
 			if(get_tick() - order_start_poll_tick >= ORDER_PERIOD/TIME_PER_TICK)
 			{
-				bt_send_order(2);
+				add_order_package(2);
 			}
 			else if(get_order_result())
 			{
-				bt_send_order(get_order_result());
+				add_order_package(get_order_result());
 			}
 		}
 		else
 		{
 			if(get_tick() >= (ORDER_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - order_start_poll_tick)))
 			{
-				bt_send_order(2);
+				add_order_package(2);
 			}
 			else if(get_order_result())
 			{
-				bt_send_order(get_order_result());
+				add_order_package(get_order_result());
 			}
 		}
 	}
@@ -124,7 +124,7 @@ void temp_upload_poll(void)
 	{
 		if(get_tick() - last_temp_tick >= TEMP_PERIOD/TIME_PER_TICK)
 		{
-			js_compose(0, 1, 0);
+			add_send_package(0, 1, 0);
 			OLED_display(3, 255);
 			last_temp_tick = get_tick();
 			printf("temp display\r\n");
@@ -133,7 +133,7 @@ void temp_upload_poll(void)
 	{
 		if(get_tick() > (TEMP_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - last_temp_tick)))
 		{
-			js_compose(0, 1, 0);
+			add_send_package(0, 1, 0);
 			OLED_display(3, 255);
 			last_temp_tick = get_tick();
 			printf("temp display\r\n");
@@ -150,8 +150,10 @@ void bt_receive_poll(void)
  		reclen=USART2_RX_STA&0X7FFF;
 		USART2_RX_BUF[reclen]=0;
 		printf("%s\r\n",USART2_RX_BUF);
-		parse_js((char *)USART2_RX_BUF);
-		process_server_cmd();
+		if(!parse_js((char *)USART2_RX_BUF));
+		{
+			process_server_cmd();
+		}
 		USART2_RX_STA=0;
 	}
 }
@@ -173,7 +175,7 @@ void bt_send_poll(void)
 	{
 		if(get_tick() - last_send_tick >= SEND_PERIOD/TIME_PER_TICK)
 		{
-			if(get_package_head() != NULL)
+			if(get_pending_package_num() != 0)
 			{
 				bt_send();
 				last_send_tick = get_tick();
@@ -183,7 +185,7 @@ void bt_send_poll(void)
 	{
 		if(get_tick() > (SEND_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - last_send_tick)))
 		{
-			if(get_package_head() != NULL)
+			if(get_pending_package_num() != 0)
 			{
 				bt_send();
 				last_send_tick = get_tick();

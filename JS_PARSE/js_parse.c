@@ -22,20 +22,26 @@ extern unsigned char dir_display_flag;
 extern unsigned int dir_display_tick;
 
 static char UID[11] = "666";
-static char MID[11]; 
+static char MID[11] = "0"; 
 static char orderId[ORDER_LEN] = {0};
 static char DIR[DIR_LEN] = {0};
 
-void parse_js(char *js)
+unsigned char parse_js(char *js)
 {
 	cJSON *receive_json = cJSON_Parse(js), *data;
+	char UID_tmp[11];
 
-	memset(UID, 0, 11);
+	memset(UID_tmp, 0, 11);
+	strcpy(UID_tmp, cJSON_GetObjectItem(receive_json, "UID")->valuestring);
+	printf("!!!!!!!!!receive UID: %s\r\n", UID_tmp);
+	if(strcmp(UID_tmp, UID))
+	{
+		return 1;
+	}
+
 	memset(MID, 0, 11);
 	memset(DIR, 0, DIR_LEN);
 	memset(orderId, 0, ORDER_LEN);
-
-	strcpy(UID, cJSON_GetObjectItem(receive_json, "UID")->valuestring);
 	strcpy(MID, cJSON_GetObjectItem(receive_json, "MID")->valuestring);
 
 	data = cJSON_GetObjectItem(receive_json, "data");
@@ -44,7 +50,8 @@ void parse_js(char *js)
 
 	cJSON_Delete(receive_json);
 
-	printf("UID: %s, MID: %s\r\nDIR: %s, orderId: %s\r\n", UID, MID, DIR, orderId);
+	printf("!!!!!!!!UID: %s, MID: %s\r\nDIR: %s, orderId: %s\r\n", UID, MID, DIR, orderId);
+	return 0;
 }
 
 void process_server_cmd(void)
@@ -82,28 +89,27 @@ static void atona(char *buf)
 {
 	unsigned char len = 0;
 
+	printf("buf: %s\n", buf);
 	for(len = strlen(buf); len > 0; len--)
 	{
 		buf[len] = buf[len - 1];
 	}
 	buf[0] = '-';
+	printf("buf: %s\n", buf);
 }
-//order: 	0: 	NULL
-//			1:	yes
-//			2:	no
-//Temp:		0:	NULL
-//			1:	temperature
-//accident:	0:	NULL
-//			1:	accident
-void js_compose(unsigned char order, unsigned char Temp, unsigned char accident)
-{
-	cJSON *send_json, *data;
-	char accident_buf[2], Temp_buf[7];
 
-	send_json = cJSON_CreateObject();
-	cJSON_AddStringToObject(send_json, "UID", UID);
-	cJSON_AddStringToObject(send_json, "MID", MID);
-	cJSON_AddItemToObject(send_json, "data", data = cJSON_CreateObject());
+char *js_compose(unsigned char order, unsigned char Temp, unsigned char accident)
+{
+	char accident_buf[2], Temp_buf[7];
+	char *js_buf;
+
+	js_buf = malloc(JS_BUF_LEN);
+	if(js_buf == NULL)
+	{
+		printf("js buf malloc error!\r\n");
+		return NULL;
+	}
+
 	if(order == 1)
 	{
 		order_display_flag = 0;
@@ -113,10 +119,16 @@ void js_compose(unsigned char order, unsigned char Temp, unsigned char accident)
 		order_display_flag = 0;
 		atona(orderId);
 	}
-	cJSON_AddStringToObject(data, "orderId", orderId);
+
 	if(Temp == 1)
+	{
 		Temp_string_get(Temp_buf);
-	cJSON_AddStringToObject(data, "temp", Temp_buf);
+	}
+	else
+	{
+		memset(Temp_buf, 0, 7);
+	}
+
 	if(accident == 1)
 	{
 		strcpy(accident_buf, "1");
@@ -125,6 +137,13 @@ void js_compose(unsigned char order, unsigned char Temp, unsigned char accident)
 	{
 		strcpy(accident_buf, "0");
 	}
-	cJSON_AddStringToObject(data, "accident", accident_buf);
-	printf("send json: %s\r\n", cJSON_Print(send_json));
+	sprintf(js_buf, "{\"UID\":\"%s\",\"MID\":\"%s\",\"data\":{\"orderId\":\"%s\",\"temp\":\"%s\",\"accident\":\"%s\"}}", UID, MID, orderId, Temp_buf, accident_buf);
+	printf("send json: %s\r\n", js_buf);
+
+	return js_buf;
+}
+
+void reset_orderId(void)
+{
+	memset(orderId, 0, ORDER_LEN);
 }

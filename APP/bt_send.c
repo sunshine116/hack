@@ -10,25 +10,62 @@
 #include "js_parse.h"
 
 extern unsigned char order_display_flag;
+static unsigned int PENDING_PACKAGE = 0;
 
-static bt_package_t *PACKAGE_HEAD = NULL;
-static bt_package_t *PACKAGE_TAIL = NULL;
+static bt_package_t TEMP_HEAD = {NULL, 0xFF, NULL};
+static bt_package_t ORDER_HEAD = {NULL, 0xFF, &TEMP_HEAD};
+static bt_package_t ACCIDENT_HEAD = {NULL, 0xFF, &ORDER_HEAD};
 
-void bt_send_order(unsigned char order_response)
+void add_order_package(unsigned char order_response)
 {
-	js_compose(order_response, 1, 0);
+	add_send_package(order_response, 1, 0);
 	stop_order_poll();
+	reset_orderId();
 }
 
-unsigned char bt_send(void)
+void bt_send(void)
 {
-	u2_printf("%s", PACKAGE_HEAD->json);
-	return 0;
+	bt_package_t *head = &ACCIDENT_HEAD;
+
+	while(head->type == 0xFF)
+	{
+		head = head->next;
+		if(head == NULL)
+		{
+			return;
+		}
+	}
+	u2_printf("%s", head->json);
+	delete_send_package_head();
 }
 
-unsigned char add_package(char *json, unsigned char type)
+static void add_to_tail(bt_package_t *old_tail, bt_package_t *new_tail)
+{
+	bt_package_t *tmp;
+
+	tmp = old_tail->next;
+	old_tail->next = new_tail;
+	new_tail->next = tmp;
+}
+
+static void add_content_to_package(bt_package_t *tmp, char *json, unsigned char type)
+{
+	tmp->json = json;
+	tmp->type = type;
+}
+
+//order: 	0: 	NULL
+//			1:	yes
+//			2:	no
+//Temp:		0:	NULL
+//			1:	temperature
+//accident:	0:	NULL
+//			1:	accident
+unsigned char add_send_package(unsigned char order, unsigned char Temp, unsigned char accident)
 {
 	bt_package_t *package_tmp;
+	char *js_buf;
+	unsigned char type_buf = 0xFF;
 
 	package_tmp = (bt_package_t *)malloc(sizeof(bt_package_t));
 	if(package_tmp == NULL)
@@ -36,48 +73,50 @@ unsigned char add_package(char *json, unsigned char type)
 		printf("package_tmp malloc error!\r\n");
 		return 1;
 	}
-	if(PACKAGE_HEAD == NULL)
+	memset(package_tmp, 0, sizeof(bt_package_t));
+
+	js_buf =  js_compose(order, Temp, accident);
+	type_buf = accident? 0:(order? 1:2);
+	add_content_to_package(package_tmp, js_buf, type_buf);
+
+	switch(type_buf)
 	{
-		PACKAGE_HEAD = package_tmp;
-		PACKAGE_TAIL = package_tmp;
-		PACKAGE_HEAD->json = json;
-		PACKAGE_HEAD->type= type;
+		case 0:
+				add_to_tail(&ACCIDENT_HEAD, package_tmp);
+				break;
+		case 1:
+				add_to_tail(&ORDER_HEAD, package_tmp);
+				break;
+		case 2:
+				add_to_tail(&TEMP_HEAD, package_tmp);
+				break;
+		default:
+				printf("package type error!\r\n");
 	}
-	else
-	{
-		package_tmp->json = json;
-		package_tmp->type= type;
-		PACKAGE_TAIL->next = package_tmp;
-		PACKAGE_TAIL = package_tmp;
-	}
+	PENDING_PACKAGE++;
 	return 0;
 }
 
-void delete_package(void)
+void delete_send_package_head(void)
 {
-	bt_package_t *tmp;
+	bt_package_t *head = &ACCIDENT_HEAD, *tmp;
 
-	if(PACKAGE_HEAD == PACKAGE_TAIL)
+	while(head->next != NULL)
 	{
-		if(PACKAGE_TAIL == NULL)
+		if(head->type != 0xFF)
 		{
-			return;
+			tmp->next = head->next;
+			free(head->json);
+			free(head);
+			PENDING_PACKAGE--;
+			break;
 		}
-		free(PACKAGE_HEAD->json);
-		free(PACKAGE_HEAD);
-		PACKAGE_HEAD = NULL;
-		PACKAGE_TAIL = NULL;
-	}
-	else
-	{
-		tmp = PACKAGE_HEAD;
-		PACKAGE_HEAD = tmp->next;
-		free(tmp->json);
-		free(tmp);
+		tmp = head;
+		head = head->next;
 	}
 }
 
-bt_package_t *get_package_head(void)
+unsigned int get_pending_package_num(void)
 {
-	return PACKAGE_HEAD;
+	return PENDING_PACKAGE;
 }
