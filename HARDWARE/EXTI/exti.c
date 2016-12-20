@@ -11,7 +11,7 @@
 extern unsigned char order_display_flag;
 
 static unsigned char accident_flag = 0;
-static unsigned char order_flag = 0xFF;
+static unsigned char order_flag = 0;
 
 //外部中断0服务程序
 void EXTI0_IRQHandler(void)

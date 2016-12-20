@@ -12,14 +12,10 @@
 extern unsigned char dir_display_flag;
 extern unsigned char order_display_flag;
 
-static unsigned int accident_tick = 0;
-
 static unsigned char order_poll_flag = 0xFF;
 static unsigned int order_start_poll_tick = 0;
 
 unsigned int dir_display_tick;
-
-static unsigned int temp_start_tick = 0;
 
 //显示ATK-HC05模块的连接状态
 void HC05_connect_poll(void)
@@ -50,6 +46,8 @@ void HC05_connect_poll(void)
 
 void accident_sta_poll(void)
 {
+	static unsigned int accident_tick = 0;
+
 	if(is_accident_happen())
 	{
 		if(0xFFFFFFFF - accident_tick >= ACCIDENT_PERIOD/TIME_PER_TICK)
@@ -58,7 +56,7 @@ void accident_sta_poll(void)
 			{
 				accident_tick = get_tick();
 				clear_accident_flag();
-				bt_resp_send(0, 0, 1);
+				js_compose(0, 0, 1);
 			}
 		}
 		else
@@ -67,10 +65,24 @@ void accident_sta_poll(void)
 			{
 				accident_tick = get_tick();
 				clear_accident_flag();
-				bt_resp_send(0, 0, 1);
+				js_compose(0, 0, 1);
 			}
 		}
 	}
+}
+
+void order_poll_start(void)
+{
+	order_start_poll_tick = get_tick();
+	set_order_flag(0);
+	order_poll_flag = 0;
+	order_display_flag = 1;
+	OLED_display(4, 6);
+}
+
+void stop_order_poll(void)
+{
+	order_poll_flag = 0xFF;
 }
 
 //0: read the tmp
@@ -92,7 +104,7 @@ void order_resp_poll(void)
 		}
 		else
 		{
-			if(get_tick() >= (ORDER_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - accident_tick)))
+			if(get_tick() >= (ORDER_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - order_start_poll_tick)))
 			{
 				bt_send_order(2);
 			}
@@ -106,22 +118,24 @@ void order_resp_poll(void)
 
 void temp_upload_poll(void)
 {
-	if(0xFFFFFFFF - temp_start_tick >= TEMP_PERIOD/TIME_PER_TICK)
+	static unsigned int last_temp_tick = 0;
+
+	if(0xFFFFFFFF - last_temp_tick >= TEMP_PERIOD/TIME_PER_TICK)
 	{
-		if(get_tick() - temp_start_tick >= TEMP_PERIOD/TIME_PER_TICK)
+		if(get_tick() - last_temp_tick >= TEMP_PERIOD/TIME_PER_TICK)
 		{
-			bt_resp_send(0, 1, 0);
+			js_compose(0, 1, 0);
 			OLED_display(3, 255);
-			temp_start_tick = get_tick();
+			last_temp_tick = get_tick();
 			printf("temp display\r\n");
 		}
 	}else
 	{
-		if(get_tick() > (TEMP_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - temp_start_tick)))
+		if(get_tick() > (TEMP_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - last_temp_tick)))
 		{
-			bt_resp_send(0, 1, 0);
+			js_compose(0, 1, 0);
 			OLED_display(3, 255);
-			temp_start_tick = get_tick();
+			last_temp_tick = get_tick();
 			printf("temp display\r\n");
 		}
 	}
@@ -151,16 +165,29 @@ void dir_display_poll(void)
 	}
 }
 
-void order_poll_start(void)
+void bt_send_poll(void)
 {
-	order_start_poll_tick = get_tick();
-	set_order_flag(0);
-	order_poll_flag = 0;
-	order_display_flag = 1;
-	OLED_display(4, 6);
-}
+	static unsigned int last_send_tick = 0;
 
-void stop_order_poll(void)
-{
-	order_poll_flag = 0xFF;
+	if(0xFFFFFFFF - last_send_tick >= SEND_PERIOD/TIME_PER_TICK)
+	{
+		if(get_tick() - last_send_tick >= SEND_PERIOD/TIME_PER_TICK)
+		{
+			if(get_package_head() != NULL)
+			{
+				bt_send();
+				last_send_tick = get_tick();
+			}
+		}
+	}else
+	{
+		if(get_tick() > (SEND_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - last_send_tick)))
+		{
+			if(get_package_head() != NULL)
+			{
+				bt_send();
+				last_send_tick = get_tick();
+			}
+		}
+	}
 }

@@ -6,76 +6,78 @@
 #include "poll.h"
 #include "delay.h"
 #include "DS18B20.h"
+#include "usart2.h"
+#include "js_parse.h"
 
 extern unsigned char order_display_flag;
 
-static unsigned int send_tick;
+static bt_package_t *PACKAGE_HEAD = NULL;
+static bt_package_t *PACKAGE_TAIL = NULL;
 
 void bt_send_order(unsigned char order_response)
 {
-	bt_resp_send(order_response, 1, 0);
+	js_compose(order_response, 1, 0);
 	stop_order_poll();
 }
-//order: 	0: 	NULL
-//			1:	yes
-//			2:	no
-//Temp:		0:	NULL
-//			1:	temperature
-//accident:	0:	NULL
-//			1:	accident
-unsigned char bt_resp_send(unsigned char order, unsigned char Temp, unsigned char accident)
-{
-	char* Temp_buf = NULL, *order_buf = NULL;
-	unsigned char Temp_buf_len = 1, order_buf_len = 3, i;
 
-	if(get_tick() - send_tick < 3000/TICK_PERIOD)
-	{
-		for(i = 0; i < 30; i++)
-			delay_ms(100);
-		send_tick = get_tick();
-	}
-	else
-	{
-		send_tick = get_tick();
-	}
-	if(order != NULL)
-		order_buf_len = 64;
-	order_buf = malloc(order_buf_len);
-	if(order_buf == NULL)
-	{
-		OLED_print_error("order_buf error!");
-		return 1;
-	}
-	memset(order_buf, 0, order_buf_len);
-	if(order == 1)
-	{
-		order_display_flag = 0;
-		// strcpy(order_buf, orderId);
-	}
-	else if(order == 2)
-	{
-		order_display_flag = 0;
-		memset(order_buf, '-', 1);
-		// strcpy(order_buf + 1, orderId);
-	}
-		
-	if(Temp == 1)
-		Temp_buf_len = 7;
-	Temp_buf = malloc(Temp_buf_len);
-	if(Temp_buf == NULL)
-	{
-		OLED_print_error("Temp_buf error!");
-		return 1;
-	}
-	memset(Temp_buf, 0, Temp_buf_len);
-	if(Temp == 1)
-		Temp_string_get(Temp_buf);
-	// u2_printf("{\"UID\":\"%d\",\"MID\":\"%d\",\"data\":{\"orderId\":\"%s\",\"temp\":\"%s\",\"accident\":\"%d\"}}", UID, MID, order_buf, Temp_buf, accident);
-	printf("!!!!order_buf!!!!!!: %s\r\n", order_buf);
-	// if(order != NULL)
-	// 	memset(orderId, 0, QUERY_LEN);
-	free(order_buf);
-	free(Temp_buf);
+unsigned char bt_send(void)
+{
+	u2_printf("%s", PACKAGE_HEAD->json);
 	return 0;
 }
 
+unsigned char add_package(char *json, unsigned char type)
+{
+	bt_package_t *package_tmp;
+
+	package_tmp = (bt_package_t *)malloc(sizeof(bt_package_t));
+	if(package_tmp == NULL)
+	{
+		printf("package_tmp malloc error!\r\n");
+		return 1;
+	}
+	if(PACKAGE_HEAD == NULL)
+	{
+		PACKAGE_HEAD = package_tmp;
+		PACKAGE_TAIL = package_tmp;
+		PACKAGE_HEAD->json = json;
+		PACKAGE_HEAD->type= type;
+	}
+	else
+	{
+		package_tmp->json = json;
+		package_tmp->type= type;
+		PACKAGE_TAIL->next = package_tmp;
+		PACKAGE_TAIL = package_tmp;
+	}
+	return 0;
+}
+
+void delete_package(void)
+{
+	bt_package_t *tmp;
+
+	if(PACKAGE_HEAD == PACKAGE_TAIL)
+	{
+		if(PACKAGE_TAIL == NULL)
+		{
+			return;
+		}
+		free(PACKAGE_HEAD->json);
+		free(PACKAGE_HEAD);
+		PACKAGE_HEAD = NULL;
+		PACKAGE_TAIL = NULL;
+	}
+	else
+	{
+		tmp = PACKAGE_HEAD;
+		PACKAGE_HEAD = tmp->next;
+		free(tmp->json);
+		free(tmp);
+	}
+}
+
+bt_package_t *get_package_head(void)
+{
+	return PACKAGE_HEAD;
+}

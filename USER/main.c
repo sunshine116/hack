@@ -56,6 +56,7 @@ int main(void)
 		order_resp_poll();
 		temp_upload_poll();
 		bt_receive_poll();
+		bt_send_poll();
 		dir_display_poll();
 	}
 
