@@ -69,6 +69,7 @@ unsigned char parse_js(char *js)
 		} else if (jsoneq(js, &t[i], "orderId") == 0) {
 			sprintf(orderId, "%.*s", t[i+1].end-t[i+1].start,
 					js + t[i+1].start);
+			printf("orderId: %s\r\n", orderId);
 			i++;
 		}
 	}
@@ -103,7 +104,10 @@ void process_server_cmd(void)
 
 	if(0 != strcmp(orderId, ""))
 	{
-		order_poll_start();
+		if(0 != is_order_poll())
+		{
+			order_poll_start();
+		}
 	}
 }
 
@@ -111,18 +115,16 @@ static void atona(char *buf)
 {
 	unsigned char len = 0;
 
-	printf("buf: %s\n", buf);
 	for(len = strlen(buf); len > 0; len--)
 	{
 		buf[len] = buf[len - 1];
 	}
 	buf[0] = '-';
-	printf("buf: %s\n", buf);
 }
 
 char *js_compose(unsigned char order, unsigned char Temp, unsigned char accident)
 {
-	char accident_buf[2], Temp_buf[7];
+	char accident_buf[2], Temp_buf[7], orderId_tmp[ORDER_LEN];
 	char *js_buf;
 
 	js_buf = malloc(JS_BUF_LEN);
@@ -135,11 +137,17 @@ char *js_compose(unsigned char order, unsigned char Temp, unsigned char accident
 	if(order == 1)
 	{
 		order_display_flag = 0;
+		memcpy(orderId_tmp, orderId, ORDER_LEN);
 	}
 	else if(order == 2)
 	{
 		order_display_flag = 0;
-		atona(orderId);
+		memcpy(orderId_tmp, orderId, ORDER_LEN);
+		atona(orderId_tmp);
+	}
+	else
+	{
+		memset(orderId_tmp, 0, ORDER_LEN);
 	}
 
 	if(Temp == 1)
@@ -159,7 +167,7 @@ char *js_compose(unsigned char order, unsigned char Temp, unsigned char accident
 	{
 		strcpy(accident_buf, "0");
 	}
-	sprintf(js_buf, "{\"UID\":\"%s\",\"MID\":\"%s\",\"data\":{\"orderId\":\"%s\",\"temp\":\"%s\",\"accident\":\"%s\"}}", UID, MID, orderId, Temp_buf, accident_buf);
+	sprintf(js_buf, "{\"UID\":\"%s\",\"MID\":\"%s\",\"data\":{\"orderId\":\"%s\",\"temp\":\"%s\",\"accident\":\"%s\"}}", UID, MID, orderId_tmp, Temp_buf, accident_buf);
 	printf("send json: %s\r\n", js_buf);
 
 	return js_buf;

@@ -10,6 +10,7 @@ void dir_display_poll(void);
 void bt_send_poll(void);
 void order_poll_start(void);
 void stop_order_poll(void);
+unsigned char is_order_poll(void);
 
 #endif
 

@@ -18,6 +18,7 @@ static bt_package_t ACCIDENT_HEAD = {NULL, 0xFF, &ORDER_HEAD};
 
 void add_order_package(unsigned char order_response)
 {
+	printf("!!!!!add_order_package!!!!!!\r\n");
 	add_send_package(order_response, 1, 0);
 	stop_order_poll();
 	reset_orderId();
@@ -75,6 +76,7 @@ unsigned char add_send_package(unsigned char order, unsigned char Temp, unsigned
 	}
 	memset(package_tmp, 0, sizeof(bt_package_t));
 
+	printf("order: %d, Temp: %d, accident: %d\r\n", order, Temp, accident);
 	js_buf =  js_compose(order, Temp, accident);
 	type_buf = accident? 0:(order? 1:2);
 	add_content_to_package(package_tmp, js_buf, type_buf);

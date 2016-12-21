@@ -85,6 +85,12 @@ void stop_order_poll(void)
 	order_poll_flag = 0xFF;
 }
 
+//0: poll is working 0xFF: poll stop
+unsigned char is_order_poll(void)
+{
+	return order_poll_flag;
+}
+
 //0: read the tmp
 //1: poll contiune
 void order_resp_poll(void)
@@ -127,7 +133,6 @@ void temp_upload_poll(void)
 			add_send_package(0, 1, 0);
 			OLED_display(3, 255);
 			last_temp_tick = get_tick();
-			printf("temp display\r\n");
 		}
 	}else
 	{
@@ -136,7 +141,6 @@ void temp_upload_poll(void)
 			add_send_package(0, 1, 0);
 			OLED_display(3, 255);
 			last_temp_tick = get_tick();
-			printf("temp display\r\n");
 		}
 	}
 }
