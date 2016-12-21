@@ -362,7 +362,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\KEY;..\HARDWARE\OLED;..\HARDWARE\HC05;..\HARDWARE\USART2;..\HARDWARE\KEY;..\HARDWARE\LED;..\HARDWARE\DS18B20;..\HARDWARE\EXTI;..\APP;..\JS_PARSE;..\JS_PARSE\cJSON</IncludePath>
+              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\KEY;..\HARDWARE\OLED;..\HARDWARE\HC05;..\HARDWARE\USART2;..\HARDWARE\KEY;..\HARDWARE\LED;..\HARDWARE\DS18B20;..\HARDWARE\EXTI;..\APP;..\JS_PARSE;..\JS_PARSE\JSMN;..\CONFIG</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -546,14 +546,9 @@
               <FilePath>..\JS_PARSE\js_parse.c</FilePath>
             </File>
             <File>
-              <FileName>cJSON.c</FileName>
+              <FileName>jsmn.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\JS_PARSE\cJSON\cJSON.c</FilePath>
-            </File>
-            <File>
-              <FileName>cJSON_Utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\JS_PARSE\cJSON\cJSON_Utils.c</FilePath>
+              <FilePath>..\JS_PARSE\JSMN\jsmn.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -11,9 +11,6 @@
 #include "poll.h"
 #include "jsmn.h"
 
-#define PARSER_LEN        64
-#define TOKEN_SIZE        200
-
 #define ORDER_LEN         12
 #define DIR_LEN           11
 
@@ -69,11 +66,9 @@ unsigned char parse_js(char *js)
 		} else if (jsoneq(js, &t[i], "orderId") == 0) {
 			sprintf(orderId, "%.*s", t[i+1].end-t[i+1].start,
 					js + t[i+1].start);
-			printf("orderId: %s\r\n", orderId);
 			i++;
 		}
 	}
-	printf("!!!!!!!!UID: %s, MID: %s\r\nDIR: %s, orderId: %s\r\n", UID, MID, DIR, orderId);
 	return 0;
 }
 
@@ -168,7 +163,6 @@ char *js_compose(unsigned char order, unsigned char Temp, unsigned char accident
 		strcpy(accident_buf, "0");
 	}
 	sprintf(js_buf, "{\"UID\":\"%s\",\"MID\":\"%s\",\"data\":{\"orderId\":\"%s\",\"temp\":\"%s\",\"accident\":\"%s\"}}", UID, MID, orderId_tmp, Temp_buf, accident_buf);
-	printf("send json: %s\r\n", js_buf);
 
 	return js_buf;
 }

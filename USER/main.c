@@ -12,6 +12,7 @@
 #include "exti.h"
 #include "DS18B20.h"
 #include "poll.h"
+#include "bt_send.h"
 
 int main(void)
 {
@@ -30,6 +31,7 @@ int main(void)
 	OLED_Init();
 	EXTI_Init();
 	ReadTemperature();
+	init_send_package();
 
 	while(HC05_Init())
 	{
