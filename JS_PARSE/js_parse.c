@@ -9,7 +9,7 @@
 #include "exti.h"
 #include "delay.h"
 #include "poll.h"
-#include "cJSON.h"
+#include "jsmn.h"
 
 #define PARSER_LEN        64
 #define TOKEN_SIZE        200
@@ -26,30 +26,52 @@ static char MID[11] = "0";
 static char orderId[ORDER_LEN] = {0};
 static char DIR[DIR_LEN] = {0};
 
+static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
+	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
+			strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+		return 0;
+	}
+	return -1;
+}
+
 unsigned char parse_js(char *js)
 {
-	cJSON *receive_json = cJSON_Parse(js), *data;
-	char UID_tmp[11];
+	int i, r;
+	jsmn_parser p;
+	jsmntok_t t[64];
 
-	memset(UID_tmp, 0, 11);
-	strcpy(UID_tmp, cJSON_GetObjectItem(receive_json, "UID")->valuestring);
-	printf("!!!!!!!!!receive UID: %s\r\n", UID_tmp);
-	if(strcmp(UID_tmp, UID))
-	{
+	jsmn_init(&p);
+	r = jsmn_parse(&p, js, strlen(js), t, sizeof(t)/sizeof(t[0]));
+	if (r < 0) {
+		printf("Failed to parse JSON: %d\r\n", r);
+		return 1;
+	}
+	/* Assume the top-level element is an object */
+	if (r < 1 || t[0].type != JSMN_OBJECT) {
+		printf("Object expected\n");
 		return 1;
 	}
 
-	memset(MID, 0, 11);
-	memset(DIR, 0, DIR_LEN);
-	memset(orderId, 0, ORDER_LEN);
-	strcpy(MID, cJSON_GetObjectItem(receive_json, "MID")->valuestring);
-
-	data = cJSON_GetObjectItem(receive_json, "data");
-	strcpy(DIR , cJSON_GetObjectItem(data, "dir")->valuestring);
-	strcpy(orderId, cJSON_GetObjectItem(data, "orderId")->valuestring);
-
-	cJSON_Delete(receive_json);
-
+	/* Loop over all keys of the root object */
+	for (i = 1; i < r; i++) {
+		if (jsoneq(js, &t[i], "UID") == 0) {
+			sprintf(UID, "%.*s", t[i+1].end-t[i+1].start,
+					js + t[i+1].start);
+			i++;
+		} else if (jsoneq(js, &t[i], "MID") == 0) {
+			sprintf(MID, "%.*s", t[i+1].end-t[i+1].start,
+					js + t[i+1].start);
+			i++;
+		} else if (jsoneq(js, &t[i], "dir") == 0) {
+			sprintf(DIR, "%.*s", t[i+1].end-t[i+1].start,
+					js + t[i+1].start);
+			i++;
+		} else if (jsoneq(js, &t[i], "orderId") == 0) {
+			sprintf(orderId, "%.*s", t[i+1].end-t[i+1].start,
+					js + t[i+1].start);
+			i++;
+		}
+	}
 	printf("!!!!!!!!UID: %s, MID: %s\r\nDIR: %s, orderId: %s\r\n", UID, MID, DIR, orderId);
 	return 0;
 }
