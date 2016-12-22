@@ -3,7 +3,7 @@
 
 void HC05_connect_poll(void);
 void accident_sta_poll(void);
-void order_resp_poll(void);
+void order_poll(void);
 void temp_upload_poll(void);
 void bt_receive_poll(void);
 void dir_display_poll(void);

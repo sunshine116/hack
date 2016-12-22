@@ -31,7 +31,7 @@ int main(void)
 	OLED_Init();
 	EXTI_Init();
 	ReadTemperature();
-	init_send_package();
+	init_package_list();
 
 	while(HC05_Init())
 	{
@@ -55,7 +55,7 @@ int main(void)
 	{
 		HC05_connect_poll();
 		accident_sta_poll();
-		order_resp_poll();
+		order_poll();
 		temp_upload_poll();
 		bt_receive_poll();
 		bt_send_poll();

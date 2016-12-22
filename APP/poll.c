@@ -93,7 +93,7 @@ unsigned char is_order_poll(void)
 
 //0: read the tmp
 //1: poll contiune
-void order_resp_poll(void)
+void order_poll(void)
 {
 	if(order_poll_flag == 0)
 	{
@@ -181,7 +181,7 @@ void bt_send_poll(void)
 		{
 			if(get_pending_package_num() != 0)
 			{
-				bt_send();
+				send_max_priority_package();
 				last_send_tick = get_tick();
 			}
 		}
@@ -191,7 +191,7 @@ void bt_send_poll(void)
 		{
 			if(get_pending_package_num() != 0)
 			{
-				bt_send();
+				send_max_priority_package();
 				last_send_tick = get_tick();
 			}
 		}
