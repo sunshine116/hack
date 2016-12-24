@@ -1,6 +1,7 @@
 #ifndef __CONFIG_H_
 #define __CONFIG_H_
 
+#define VERSION						"0.3"
 //poll period
 #define ACCIDENT_PERIOD 			5000 //unit is ms
 #define ORDER_PERIOD 				5000 //unit is ms

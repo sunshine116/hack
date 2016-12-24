@@ -51,6 +51,7 @@ int main(void)
 			delay_ms(100);
 	}
 	OLED_Clear();
+	printf("Software Version: %s\r\n", VERSION);
 
 	while(1)
 	{

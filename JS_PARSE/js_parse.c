@@ -15,10 +15,6 @@
 #define ORDER_LEN         12
 #define DIR_LEN           11
 
-extern unsigned char order_display_flag;
-extern unsigned char dir_display_flag;
-extern unsigned int dir_display_tick;
-
 static char UID[11] = "666";
 static char MID[11] = "0"; 
 static char orderId[ORDER_LEN] = {0};
@@ -75,8 +71,6 @@ unsigned char parse_js(char *js)
 
 void process_server_cmd(void)
 {
-	dir_display_flag = 1;
-	dir_display_tick = get_tick();
 	if(0 == strcmp(DIR, "right"))
 	{
 		change_display_to(DIR_STATUS, RIGHT, 0);
@@ -92,9 +86,6 @@ void process_server_cmd(void)
 	else if(0 == strcmp(DIR, "turn around"))
 	{
 		change_display_to(DIR_STATUS, TURN_AROUND, 0);
-	}else
-	{
-		dir_display_flag = 0;
 	}
 	memset(DIR, 0, DIR_LEN);
 
@@ -130,16 +121,13 @@ char *js_compose(unsigned char order, unsigned char Temp, unsigned char accident
 		return NULL;
 	}
 
-	if(order == 1)
+	if(order == 1 || order == 2)
 	{
-		order_display_flag = 0;
 		memcpy(orderId_tmp, orderId, ORDER_LEN);
-	}
-	else if(order == 2)
-	{
-		order_display_flag = 0;
-		memcpy(orderId_tmp, orderId, ORDER_LEN);
-		atona(orderId_tmp);
+		if(order == 2)
+		{
+			atona(orderId_tmp);
+		}
 	}
 	else
 	{

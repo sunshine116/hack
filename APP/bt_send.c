@@ -9,7 +9,6 @@
 #include "usart2.h"
 #include "js_parse.h"
 
-extern unsigned char order_display_flag;
 static unsigned int PENDING_PACKAGE = 0;
 
 static bt_package_t *PACKAGE_HEAD;

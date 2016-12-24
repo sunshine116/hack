@@ -8,8 +8,6 @@
 #include "DS18B20.h"
 #include "oled.h"
 
-extern unsigned char order_display_flag;
-
 static unsigned char accident_flag = 0;
 static unsigned char order_flag = 0;
 

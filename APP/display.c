@@ -223,12 +223,9 @@ void change_display_to(unsigned char status, unsigned char arg, unsigned char fo
 		{
 			return;
 		}
-		else if(status == DISPLAY_STATUS_CURRENT)
+		else if(status == DISPLAY_STATUS_CURRENT && arg == DISPLAY_CURRENT_ARG)
 		{
-			if(arg == DISPLAY_CURRENT_ARG)
-			{
-				return;
-			}
+			return;
 		}
 	}
 	DISPLAY_CURRENT_ARG = arg;

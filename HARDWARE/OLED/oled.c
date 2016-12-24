@@ -14,12 +14,6 @@
 //[6]0 1 2 3 ... 127	
 //[7]0 1 2 3 ... 127 			   
 
-//4: 订单
-//1: 导航
-//3: 温度
-unsigned char dir_display_flag = 0;
-unsigned char order_display_flag = 0;
-
 #if OLED_MODE==1
 //向SSD1106写入一个字节。
 //dat:要写入的数据/命令

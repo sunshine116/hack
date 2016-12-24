@@ -10,13 +10,8 @@
 #include "js_parse.h"
 #include "display.h"
 
-extern unsigned char dir_display_flag;
-extern unsigned char order_display_flag;
-
 static unsigned char order_poll_flag = 0xFF;
 static unsigned int order_start_poll_tick = 0;
-
-unsigned int dir_display_tick;
 
 //显示ATK-HC05模块的连接状态
 void HC05_connect_poll(void)
@@ -62,7 +57,6 @@ void order_poll_start(void)
 	order_start_poll_tick = get_tick();
 	set_order_flag(0);
 	order_poll_flag = 0;
-	order_display_flag = 1;
 	change_display_to(ORDER_STATUS, 0xFF, 0);
 }
 
@@ -117,7 +111,6 @@ void temp_upload_poll(void)
 		if(get_tick() - last_temp_tick >= TEMP_PERIOD/TIME_PER_TICK)
 		{
 			add_send_package(0, 1, 0);
-			change_display_to(TEMP_STATUS, 0xFF, 0);
 			last_temp_tick = get_tick();
 		}
 	}else
@@ -125,7 +118,6 @@ void temp_upload_poll(void)
 		if(get_tick() > (TEMP_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - last_temp_tick)))
 		{
 			add_send_package(0, 1, 0);
-			change_display_to(TEMP_STATUS, 0xFF, 0);
 			last_temp_tick = get_tick();
 		}
 	}
