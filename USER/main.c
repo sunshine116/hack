@@ -13,6 +13,7 @@
 #include "DS18B20.h"
 #include "poll.h"
 #include "bt_send.h"
+#include "display.h"
 
 int main(void)
 {
@@ -35,7 +36,7 @@ int main(void)
 
 	while(HC05_Init())
 	{
-		OLED_print_error("BT init error!");
+		OLED_display_error("BT init error!");
 		for(i = 0; i < 10; i++)
 			delay_ms(100);
 	}
@@ -43,7 +44,7 @@ int main(void)
 
 	while(HC05_Get_Role() != 0)
 	{
-		OLED_print_error("BT role set error!");
+		OLED_display_error("BT role set error!");
 		HC05_Set_Cmd("AT+ROLE=0");
 		HC05_Set_Cmd("AT+RESET");
 		for(i = 0; i < 10; i++)
@@ -59,7 +60,7 @@ int main(void)
 		temp_upload_poll();
 		bt_receive_poll();
 		bt_send_poll();
-		dir_display_poll();
+		display_poll();
 	}
 
 }

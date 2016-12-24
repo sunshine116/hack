@@ -3,6 +3,7 @@
 #include "delay.h"
 #include "oled.h"
 #include "js_parse.h"
+#include "display.h"
 
 static unsigned char SYMBOL;
 static unsigned int INTEGER;
@@ -92,12 +93,12 @@ void ReadTemperature(void)
 	unsigned char fg=1;        			//温度正负标志
 
 	if(Init_DS18B20()) 					//初始化
-		OLED_print_error("DS18B20 init error!");
+		OLED_display_error("DS18B20 init error!");
 	WriteOneChar(0xcc); 				//跳过读序列号的操作
 	WriteOneChar(0x44); 				//启动温度转换
 	delay_us(900); 						//转换需要一点时间，延时 
 	if(Init_DS18B20()) 					//初始化
-		OLED_print_error("DS18B20 init error!");
+		OLED_display_error("DS18B20 init error!");
 	WriteOneChar(0xcc); 				//跳过读序列号的操作 
 	WriteOneChar(0xbe); 				//读温度寄存器（头两个值分别为温度的低位和高位） 
 	tempL=ReadOneChar(); 				//读出温度的低位LSB

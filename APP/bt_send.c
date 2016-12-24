@@ -18,7 +18,7 @@ static bt_package_t *PACKAGE_TAIL;
  * 使用双向链表表示需要发送的package，其中ACCIDENT_HEAD作为PACKAGE_HEAD，其次是ORDER_HEAD，然后是TEMP_HEAD，最后是TEMP_TAIL。
  * ACCIDENT_HEAD链表的尾部指向ORDER_HEAD的头部，ORDER_HEAD的尾部指向TEMP_HEAD的头部，TEMP_HEAD的尾部指向TEMP_TAIL，新来的
  * package加入到每个对应类型链表的最后，所以链表头是不变的。在发送的时候，从accident头（也就是整个链表的头）开始搜索，如果type不
- * 为0xFF（ACCIDENT_HEAD，ORDER_HEAD，TEMP_HEAD和TEMP_TAIL的类型固定为0xFF)，就发送整个数据包，并将其从链表中删除。如果
+ * 为0xFF（ACCIDENT_HEAD，ORDER_HEAD，TEMP_HEAD和TEMP_TAIL的类型固定为0xFF)，就发送这个数据包，并将其从链表中删除。如果
  * PENDING_PACKAGE大于等于MAX_PENDING_PACKAGE_NUM，先从链表中删除最小优先级的数据包，然后把这个数据包加入到链表中。
  */
 static bt_package_t *ACCIDENT_HEAD;
@@ -85,7 +85,7 @@ void send_max_priority_package(void)
 
 static void delete_min_priority_package(void)
 {
-	bt_package_t *tmp = PACKAGE_TAIL; 
+	bt_package_t *tmp = PACKAGE_TAIL;
 
 	while(tmp->type != 0xFF)
 	{

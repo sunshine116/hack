@@ -167,7 +167,7 @@ void OLED_ShowString(u8 x,u8 y,u8 *chr)
 	}
 }
 //显示汉字
-static void OLED_ShowCHinese_16(u8 x,u8 y,u8 no)
+void OLED_ShowCHinese_16(u8 x,u8 y,u8 no)
 {
 	u8 t;
 	OLED_Set_Pos(x,y);
@@ -182,35 +182,8 @@ static void OLED_ShowCHinese_16(u8 x,u8 y,u8 no)
     }
 }
 
-/**
- * OLED title display
- * @param title 	0: 		注意！
- *                  1: 		导航模式
- *                  2: 		蓝牙状态
- *                  3: 		测温模式
- *                  4: 		接单模式
- */
-static unsigned char mod[][6] = {     // first num: num of words   second num: x start pos  remain: words location
-	{3, 41, 0, 1, 2, 0},
-	{4, 25, 3, 4, 5, 6},
-	{4, 25, 7, 8, 9, 10},
-	{4, 25, 11, 12, 5, 6},
-	{4, 25, 13, 14, 5, 6},
-};
-static void OLED_title_display(unsigned char title)
-{
-	unsigned char i;
-
-	if(title > (sizeof(mod)/sizeof(mod[0])))
-		OLED_print_error("CH16 error");
-	for(i =0; i < mod[title][0]; i++)
-	{
-		OLED_ShowCHinese_16(mod[title][1] + 16*i, 0, mod[title][2 + i]);
-	}
-}
-
 //显示汉字
-static void OLED_ShowCHinese_32(u8 x,u8 y,u8 no)
+void OLED_ShowCHinese_32(u8 x,u8 y,u8 no)
 {
 	u8 t, i, adder=0;
 
@@ -231,37 +204,6 @@ static void OLED_ShowCHinese_32(u8 x,u8 y,u8 no)
     }
 }
 
-/**
- * OLED content display
- * @param content 	0: 前方直行
- *                  1: 前方掉头
- *                  2: 前方左转
- *                  3: 前方右转
- *                  4: 蓝牙断开
- *                  5: 连接成功
- *                  6: 是否接单
- */
-static unsigned char dir[][4] = {
-	{3, 4, 7, 8},
-	{3, 4, 5, 6},
-	{3, 4, 0, 2},
-	{3, 4, 1, 2},
-	{9, 10, 11, 12},
-	{13, 14, 15, 16},
-	{17, 18, 19, 20},
-};
-static void OLED_content_display(unsigned char content)
-{
-	unsigned char i;
-
-	if(content > (sizeof(dir)/sizeof(dir[0])))
-		OLED_print_error("CH32 error");
-	for(i =0; i < 4; i++)
-	{
-		OLED_ShowCHinese_32(i*32, 3, dir[content][i]);
-	}
-}
-
 //显示数字
 void OLED_ShowNumber_16X32(u8 x,u8 y,u8 no)
 {
@@ -276,64 +218,6 @@ void OLED_ShowNumber_16X32(u8 x,u8 y,u8 no)
 		}
 		adder++;
     }
-}
-
-/**
- * OLED title display
- * @param title 	0: 		注意！
- *                  1: 		导航模式
- *                  2: 		蓝牙状态
- *                  3: 		测温模式
- *                  4: 		接单模式
- */
-/**
- * OLED content display
- * @param content 	255: 	显示温度
- * 	               	0: 		前方直行
- *                  1: 		前方掉头
- *                  2: 		前方左转
- *                  3: 		前方右转
- *                  4: 		蓝牙断开
- *                  5: 		连接成功
- *                  6: 		是否接单
- */
-void OLED_display(unsigned char title, unsigned char content)
-{
-	unsigned char symbol, dot, x_pos = 5, i = 0;
-	unsigned int integer;
-
-	if(title == 3)
-	{
-		if(dir_display_flag != 0 || order_display_flag != 0)
-			return;
-	}else if(title == 1)
-	{
-		if(order_display_flag != 0)
-			return;
-	}
-	OLED_Clear();
-	OLED_title_display(title);
-	if(255 == content)
-	{
-		Temp_get(&symbol, &integer, &dot);
-		OLED_ShowNumber_16X32(x_pos, 3, 11 + symbol); i++;
-		if(integer/10 != 0)
-		{
-			OLED_ShowNumber_16X32((x_pos+16*i), 3, integer/10); i++;
-		}
-		OLED_ShowNumber_16X32((x_pos+16*i), 3, integer%10); i++;
-		OLED_ShowNumber_16X32((x_pos+16*i), 3, 10); i++;
-		if(dot/10 != 0)
-		{
-			OLED_ShowNumber_16X32((x_pos+16*i), 3, dot/10); i++;
-		}
-		OLED_ShowNumber_16X32((x_pos+16*i), 3, dot%10); i++;
-		OLED_ShowNumber_16X32((x_pos+16*i), 3, 13);
-	}
-	else
-	{
-		OLED_content_display(content);
-	}
 }
 
 //初始化SSD1306					    
@@ -393,11 +277,4 @@ void OLED_Init(void)
 	OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/ 
 	OLED_Clear();
 	OLED_Set_Pos(0,0); 	
-}
-
-void OLED_print_error(u8 *string)
-{
-	OLED_Clear();
-	OLED_title_display(0);
-	OLED_ShowString(0,2,string);
 }

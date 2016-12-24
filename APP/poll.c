@@ -8,6 +8,7 @@
 #include "usart2.h"
 #include "exti.h"
 #include "js_parse.h"
+#include "display.h"
 
 extern unsigned char dir_display_flag;
 extern unsigned char order_display_flag;
@@ -20,27 +21,12 @@ unsigned int dir_display_tick;
 //显示ATK-HC05模块的连接状态
 void HC05_connect_poll(void)
 {
-	static unsigned char flag = 0;
-	unsigned char i;
-	if(HC05_LED)
+	if(!HC05_LED)
 	{
-		if(0 == flag)
-		{
-			OLED_display(2, 5);
-			flag = 1;
-			for(i = 0; i < 20; i++)
-				delay_ms(100);
-		}
-	}
-	else
-	{
-		flag = 0;
-		OLED_display(0, 4);
+		change_display_to(BT_STATUS, BT_DISCONN, 0);
 		while(!HC05_LED)
-		{
-			for(i = 0; i < 10; i++)
-				delay_ms(100);
-		}
+			delay_ms(3000);
+		change_display_to(BT_STATUS, BT_CONNECT, 0);
 	}
 }
 
@@ -77,7 +63,7 @@ void order_poll_start(void)
 	set_order_flag(0);
 	order_poll_flag = 0;
 	order_display_flag = 1;
-	OLED_display(4, 6);
+	change_display_to(ORDER_STATUS, 0xFF, 0);
 }
 
 void stop_order_poll(void)
@@ -131,7 +117,7 @@ void temp_upload_poll(void)
 		if(get_tick() - last_temp_tick >= TEMP_PERIOD/TIME_PER_TICK)
 		{
 			add_send_package(0, 1, 0);
-			OLED_display(3, 255);
+			change_display_to(TEMP_STATUS, 0xFF, 0);
 			last_temp_tick = get_tick();
 		}
 	}else
@@ -139,7 +125,7 @@ void temp_upload_poll(void)
 		if(get_tick() > (TEMP_PERIOD/TIME_PER_TICK - (0xFFFFFFFF - last_temp_tick)))
 		{
 			add_send_package(0, 1, 0);
-			OLED_display(3, 255);
+			change_display_to(TEMP_STATUS, 0xFF, 0);
 			last_temp_tick = get_tick();
 		}
 	}
@@ -162,13 +148,9 @@ void bt_receive_poll(void)
 	}
 }
 
-void dir_display_poll(void)
+void display_poll(void)
 {
-	if(dir_display_flag == 1)
-	{
-		if(get_tick() - dir_display_tick > DIR_PERIOD/TIME_PER_TICK)
-			dir_display_flag = 0;
-	}
+	is_display_status_need_change();
 }
 
 void bt_send_poll(void)

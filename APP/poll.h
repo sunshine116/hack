@@ -6,7 +6,7 @@ void accident_sta_poll(void);
 void order_poll(void);
 void temp_upload_poll(void);
 void bt_receive_poll(void);
-void dir_display_poll(void);
+void display_poll(void);
 void bt_send_poll(void);
 void order_poll_start(void);
 void stop_order_poll(void);

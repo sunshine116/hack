@@ -10,6 +10,7 @@
 #include "delay.h"
 #include "poll.h"
 #include "jsmn.h"
+#include "display.h"
 
 #define ORDER_LEN         12
 #define DIR_LEN           11
@@ -78,19 +79,19 @@ void process_server_cmd(void)
 	dir_display_tick = get_tick();
 	if(0 == strcmp(DIR, "right"))
 	{
-		OLED_display(1, 3);
+		change_display_to(DIR_STATUS, RIGHT, 0);
 	}
 	else if(0 == strcmp(DIR, "left"))
 	{
-		OLED_display(1, 2);
+		change_display_to(DIR_STATUS, LEFT, 0);
 	}
 	else if(0 == strcmp(DIR, "forward"))
 	{
-		OLED_display(1, 0);
+		change_display_to(DIR_STATUS, FORWARD, 0);
 	}
 	else if(0 == strcmp(DIR, "turn around"))
 	{
-		OLED_display(1, 1);
+		change_display_to(DIR_STATUS, TURN_AROUND, 0);
 	}else
 	{
 		dir_display_flag = 0;
